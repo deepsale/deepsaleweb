@@ -1,0 +1,2282 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <meta charset='UTF-8'>
+  <meta name='viewport' content='width=device-width, initial-scale=1.0'>
+  <meta http-equiv='Cache-Control' content='no-cache, no-store, must-revalidate'>
+  <meta http-equiv='Pragma' content='no-cache'>
+  <meta http-equiv='Expires' content='0'>
+  <title>Discounted Items - ss_nature_org</title>
+  <link rel='preconnect' href='https://fonts.googleapis.com'>
+  <link rel='preconnect' href='https://fonts.gstatic.com' crossorigin>
+  <link href='https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600&display=swap' rel='stylesheet'>
+
+  <!-- Load Chart.js from CDN -->
+  <script src='https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.js'></script>
+  <!-- Load the Chart.js DataLabels plugin -->
+  <script src='https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0/dist/chartjs-plugin-datalabels.min.js'></script>
+
+  <script>
+    // A custom plugin that draws a background behind the x-axis title
+    const axisTitleBackgroundPlugin = {
+      id: 'axisTitleBackgroundPlugin',
+      beforeDraw(chart, args, options) {
+        const { ctx, chartArea: { bottom }, scales } = chart;
+        const xScale = scales.x; // We’ll handle the x-axis title
+        if (!xScale || !xScale.options.title?.display) return;
+        const title = xScale.options.title.text;
+        const font = Chart.helpers.toFont(xScale.options.title.font);
+        const backgroundColor = options.backgroundColor || '#ccc';
+        ctx.save();
+        ctx.font = font.string;
+        const textWidth = ctx.measureText(title).width;
+        const textHeight = font.lineHeight || font.size;
+        const xPos = xScale.left + (xScale.right - xScale.left) / 2; // center
+        const yPos = bottom + (xScale.options.title.padding?.bottom || 0);
+        const rectWidth = textWidth + 10;
+        const rectHeight = textHeight + 6;
+        const rectX = xPos - rectWidth / 2;
+        const rectY = yPos;
+        ctx.fillStyle = backgroundColor;
+        ctx.fillRect(rectX, rectY, rectWidth, rectHeight);
+        ctx.fillStyle = xScale.options.title.color || '#000';
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        ctx.fillText(title, xPos, rectY + 3);
+        ctx.restore();
+      }
+    };
+  </script>
+  <script>
+    // Register the plugins with Chart.js
+    Chart.register(ChartDataLabels);
+    Chart.register(axisTitleBackgroundPlugin);
+  </script>
+
+  <style>
+    html { overflow-y: scroll; }
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: 'Montserrat', Arial, sans-serif;
+      background-color: #fff;
+      overflow-x: hidden;
+      transition: opacity 0.5s ease;
+    }
+    .fade-on-load { opacity: 0; transition: opacity 0.8s ease; }
+    body.page-loaded .fade-on-load { opacity: 1; }
+    .header-container {
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      background: #fff;
+      padding: 10px 20px;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+      z-index: 1000;
+    }
+    .header-row { display: flex; align-items: center; gap: 20px; }
+    .page-title { font-size: 22px; font-weight: 600; }
+    .creation-time { text-align: center; font-size: 12px; color: gray; margin-top: 5px; }
+    .divider { border: 0; height: 1px; background: #ccc; margin: 0 20px 10px; }
+    .header-spacer { height: 70px; }
+    .search-button {
+      background-color: #3e7d53;
+      border: none;
+      color: #fff;
+      padding: 6px 12px;
+      border-radius: 9999px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      display: inline-flex;
+      align-items: center;
+      gap: 5px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    #searchBarContainer {
+      position: fixed;
+      top: 20px; left: 50%;
+      transform: translateX(-50%);
+      width: 240px;
+      background-color: #fff;
+      border: 1px solid #ccc;
+      border-radius: 20px;
+      padding: 8px;
+      box-shadow: 0 2px 6px rgba(0,0,0,0.2);
+      text-align: center;
+      transition: opacity 0.5s ease;
+      opacity: 0;
+      display: none;
+      align-items: center;
+      z-index: 1001;
+    }
+    #searchInput {
+      padding: 4px;
+      width: calc(100% - 60px);
+      border: none;
+      outline: none;
+      font-size: 12px;
+      flex-grow: 1;
+    }
+    #searchCount {
+      font-size: 12px;
+      color: #3e7d53;
+      margin-left: 8px;
+      white-space: nowrap;
+    }
+    #closeSearchButton {
+      background: none;
+      border: none;
+      font-size: 16px;
+      cursor: pointer;
+      color: #3e7d53;
+      margin-left: 8px;
+      line-height: 1;
+      padding: 0;
+    }
+    .item-container {
+      display: flex;
+      align-items: flex-start;
+      gap: 15px;
+      width: 90%;
+      max-width: 600px;
+      margin: 10px auto;
+      border-bottom: 1px solid #ccc;
+      padding-bottom: 10px;
+    }
+    .left-side {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 10px;
+    }
+    .item-image img {
+      width: 80px;
+      height: auto;
+      opacity: 0;
+      animation: fadeIn 1.5s ease forwards;
+    }
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+    .vertical-switch-button {
+      background-color: #3e7d53;
+      border: none;
+      color: #fff;
+      padding: 6px 12px;
+      border-radius: 9999px;
+      cursor: pointer;
+      font-size: 12px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+    }
+    .vertical-switch-button.selected {
+      background-color: #3e7d53;
+      color: #fff;
+    }
+    .vertical-switch-button:not(.selected) {
+      background-color: #ddd;
+      color: #555;
+      font-weight: 400;
+    }
+    .toggle-switch {
+      width: 80px;
+      height: 28px;
+      position: relative;
+    }
+    .toggle-switch.disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    .toggle-input { display: none; }
+    .toggle-label {
+      display: inline-block;
+      width: 100%;
+      height: 100%;
+      background-color: #ddd;
+      border-radius: 9999px;
+      position: relative;
+      cursor: pointer;
+      transition: background-color 0.3s ease;
+    }
+    .toggle-switch:not(.disabled) .toggle-label {
+      background-color: #3e7d53;
+    }
+    .toggle-switch:not(.disabled) .toggle-label .toggle-text {
+      color: #fff;
+    }
+    .toggle-switch.disabled .toggle-label {
+      background-color: #aaa;
+    }
+    .toggle-label .toggle-circle {
+      position: absolute;
+      top: 2px;
+      left: 2px;
+      width: 24px;
+      height: 24px;
+      background-color: #fff;
+      border-radius: 50%;
+      transition: transform 0.3s ease;
+    }
+    .toggle-input:checked + .toggle-label .toggle-circle {
+      transform: translateX(52px);
+    }
+    .toggle-label .toggle-text {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      text-align: center;
+      line-height: 28px;
+      font-size: 12px;
+      color: #000;
+      font-weight: bold;
+      pointer-events: none;
+    }
+    .toggle-circle::before {
+      content: "→";
+      color: #000;
+      font-size: 14px;
+      font-weight: 700;
+      position: absolute;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      pointer-events: none;
+    }
+    .toggle-input:checked + .toggle-label .toggle-circle::before {
+      content: "←";
+      color: #000;
+      font-weight: 700;
+    }
+    .right-side {
+      flex: 1;
+      position: relative;
+    }
+    .view-container {
+      width: 100%;
+      height: 200px;
+      position: relative;
+      background-color: #f9f9f9;
+    }
+    .detail-view, .chart-view {
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      transition: opacity 0.5s ease;
+    }
+    .detail-view {
+      background-color: #fff;
+      display: flex;
+      flex-direction: column;
+      gap: 5px;
+      opacity: 1;
+      z-index: 2;
+    }
+    .chart-view {
+      background-color: #f9f9f9;
+      opacity: 0;
+      z-index: 1;
+    }
+    .item-name {
+      font-size: 14px;
+      margin-bottom: 6px;
+      font-weight: 600;
+      color: black;
+    }
+    .item-number {
+      color: red;
+      font-weight: 600;
+      border: 2px solid red;
+      border-radius: 50%;
+      display: inline-block;
+      width: 22px;
+      height: 22px;
+      text-align: center;
+      line-height: 20px;
+      margin-right: 8px;
+      font-size: 12px;
+    }
+    .expire-on {
+      font-weight: 400;
+      font-size: 12px;
+      margin: 4px 0;
+    }
+    .was-price {
+      text-decoration: line-through;
+      font-weight: 400;
+      font-size: 12px;
+      margin: 4px 0;
+    }
+    .now-price {
+      color: red;
+      font-weight: 600;
+      font-size: 14px;
+      margin: 4px 0;
+    }
+    .discount-badge {
+      background-color: yellow;
+      display: inline-block;
+      font-weight: 600;
+      padding: 2px 5px;
+      font-size: 16px;
+    }
+  </style>
+
+  <script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.body.classList.add('page-loaded');
+        document.querySelectorAll('.detail-view').forEach(function(el) {
+            el.style.opacity = '1';
+            el.style.display = 'block';
+        });
+        document.querySelectorAll('.chart-view').forEach(function(el) {
+            el.style.opacity = '0';
+            el.style.display = 'none';
+        });
+        window.priceHistoryData = {"20015323002_EA": {"1mon": [{"date": "03.26", "now_price": 10.99, "was_price": 14.99}], "1yr": [{"date": "03.26", "now_price": 10.99, "was_price": 14.99}]}, "20119952_EA": {"1mon": [{"date": "04.23", "now_price": 3.99, "was_price": 4.99}], "1yr": [{"date": "04.23", "now_price": 3.99, "was_price": 4.99}]}, "20158835_EA": {"1mon": [{"date": "03.26", "now_price": 11.99, "was_price": 12.99}], "1yr": [{"date": "03.26", "now_price": 11.99, "was_price": 12.99}]}, "20309464001_EA": {"1mon": [{"date": "03.26", "now_price": 5.79, "was_price": 6.99}], "1yr": [{"date": "03.26", "now_price": 5.79, "was_price": 6.99}]}, "20638003003_EA": {"1mon": [{"date": "02.12", "now_price": 4.99, "was_price": 6.49}, {"date": "02.19", "now_price": 5.0, "was_price": 6.49}, {"date": "03.05", "now_price": 4.99, "was_price": 6.49}], "1yr": [{"date": "02.12", "now_price": 4.99, "was_price": 6.49}, {"date": "02.19", "now_price": 5.0, "was_price": 6.49}, {"date": "03.05", "now_price": 4.99, "was_price": 6.49}]}, "20795117_EA": {"1mon": [{"date": "03.12", "now_price": 16.49, "was_price": 19.99}], "1yr": [{"date": "03.12", "now_price": 16.49, "was_price": 19.99}]}, "20861935_EA": {"1mon": [{"date": "03.19", "now_price": 2.79, "was_price": 2.99}], "1yr": [{"date": "03.19", "now_price": 2.79, "was_price": 2.99}]}, "20978912_EA": {"1mon": [{"date": "03.05", "now_price": 6.49, "was_price": 6.99}], "1yr": [{"date": "03.05", "now_price": 6.49, "was_price": 6.99}]}, "20978991_EA": {"1mon": [{"date": "03.05", "now_price": 6.49, "was_price": 6.99}], "1yr": [{"date": "03.05", "now_price": 6.49, "was_price": 6.99}]}, "21013295_EA": {"1mon": [{"date": "03.26", "now_price": 7.99, "was_price": 9.99}], "1yr": [{"date": "03.26", "now_price": 7.99, "was_price": 9.99}]}, "21060358_EA": {"1mon": [{"date": "03.26", "now_price": 57.99, "was_price": 64.99}], "1yr": [{"date": "03.26", "now_price": 57.99, "was_price": 64.99}]}, "21108167_EA": {"1mon": [{"date": "03.12", "now_price": 11.99, "was_price": 13.99}], "1yr": [{"date": "03.12", "now_price": 11.99, "was_price": 13.99}]}, "21109025_EA": {"1mon": [{"date": "02.05", "now_price": 2.49, "was_price": 2.99}, {"date": "03.26", "now_price": 2.49, "was_price": 2.99}], "1yr": [{"date": "02.05", "now_price": 2.49, "was_price": 2.99}, {"date": "03.26", "now_price": 2.49, "was_price": 2.99}]}, "21122182_EA": {"1mon": [{"date": "03.05", "now_price": 8.49, "was_price": 9.49}], "1yr": [{"date": "03.05", "now_price": 8.49, "was_price": 9.49}]}, "21154073_EA": {"1mon": [{"date": "03.26", "now_price": 4.99, "was_price": 6.99}], "1yr": [{"date": "03.26", "now_price": 4.99, "was_price": 6.99}]}, "21163384_EA": {"1mon": [{"date": "03.26", "now_price": 3.49, "was_price": 3.99}], "1yr": [{"date": "03.26", "now_price": 3.49, "was_price": 3.99}]}, "21184785_EA": {"1mon": [{"date": "03.26", "now_price": 34.99, "was_price": 39.99}], "1yr": [{"date": "03.26", "now_price": 34.99, "was_price": 39.99}]}, "21238137_EA": {"1mon": [{"date": "03.19", "now_price": 6.49, "was_price": 6.99}], "1yr": [{"date": "03.19", "now_price": 6.49, "was_price": 6.99}]}, "21293005_EA": {"1mon": [{"date": "03.12", "now_price": 6.49, "was_price": 7.49}], "1yr": [{"date": "03.12", "now_price": 6.49, "was_price": 7.49}]}, "21293620_EA": {"1mon": [{"date": "03.26", "now_price": 28.99, "was_price": 34.99}], "1yr": [{"date": "03.26", "now_price": 28.99, "was_price": 34.99}]}, "21315359_EA": {"1mon": [{"date": "03.26", "now_price": 3.49, "was_price": 3.99}], "1yr": [{"date": "03.26", "now_price": 3.49, "was_price": 3.99}]}, "21340730_EA": {"1mon": [{"date": "03.26", "now_price": 33.99, "was_price": 36.99}], "1yr": [{"date": "03.26", "now_price": 33.99, "was_price": 36.99}]}, "21387642_EA": {"1mon": [{"date": "03.05", "now_price": 14.99, "was_price": 16.99}], "1yr": [{"date": "03.05", "now_price": 14.99, "was_price": 16.99}]}, "21388163_EA": {"1mon": [{"date": "03.26", "now_price": 3.49, "was_price": 3.99}], "1yr": [{"date": "03.26", "now_price": 3.49, "was_price": 3.99}]}, "21391839_EA": {"1mon": [{"date": "03.26", "now_price": 40.99, "was_price": 42.49}], "1yr": [{"date": "03.26", "now_price": 40.99, "was_price": 42.49}]}, "21414914_EA": {"1mon": [{"date": "03.26", "now_price": 28.99, "was_price": 35.99}], "1yr": [{"date": "03.26", "now_price": 28.99, "was_price": 35.99}]}, "21418097_EA": {"1mon": [{"date": "03.26", "now_price": 57.99, "was_price": 60.99}], "1yr": [{"date": "03.26", "now_price": 57.99, "was_price": 60.99}]}, "21432605_EA": {"1mon": [{"date": "03.26", "now_price": 5.99, "was_price": 7.49}], "1yr": [{"date": "03.26", "now_price": 5.99, "was_price": 7.49}]}, "21451497_EA": {"1mon": [{"date": "03.26", "now_price": 7.99, "was_price": 8.99}], "1yr": [{"date": "03.26", "now_price": 7.99, "was_price": 8.99}]}, "21451698_EA": {"1mon": [{"date": "03.26", "now_price": 15.99, "was_price": 16.99}], "1yr": [{"date": "03.26", "now_price": 15.99, "was_price": 16.99}]}, "21474074_EA": {"1mon": [{"date": "03.26", "now_price": 10.99, "was_price": 11.99}], "1yr": [{"date": "03.26", "now_price": 10.99, "was_price": 11.99}]}, "21474078_EA": {"1mon": [{"date": "03.26", "now_price": 10.99, "was_price": 11.99}], "1yr": [{"date": "03.26", "now_price": 10.99, "was_price": 11.99}]}, "21497646_EA": {"1mon": [{"date": "03.12", "now_price": 5.99, "was_price": 7.49}], "1yr": [{"date": "03.12", "now_price": 5.99, "was_price": 7.49}]}, "21503983_EA": {"1mon": [{"date": "03.26", "now_price": 24.99, "was_price": 31.99}], "1yr": [{"date": "03.26", "now_price": 24.99, "was_price": 31.99}]}, "21525923_EA": {"1mon": [{"date": "03.12", "now_price": 30.49, "was_price": 32.99}], "1yr": [{"date": "03.12", "now_price": 30.49, "was_price": 32.99}]}, "21553893_EA": {"1mon": [{"date": "03.19", "now_price": 4.99, "was_price": 5.99}], "1yr": [{"date": "03.19", "now_price": 4.99, "was_price": 5.99}]}, "21554334_EA": {"1mon": [{"date": "03.19", "now_price": 4.99, "was_price": 6.49}], "1yr": [{"date": "03.19", "now_price": 4.99, "was_price": 6.49}]}, "21564722_EA": {"1mon": [{"date": "03.26", "now_price": 4.99, "was_price": 5.99}], "1yr": [{"date": "03.26", "now_price": 4.99, "was_price": 5.99}]}, "21565085_EA": {"1mon": [{"date": "03.26", "now_price": 32.99, "was_price": 38.99}], "1yr": [{"date": "03.26", "now_price": 32.99, "was_price": 38.99}]}, "21579868_EA": {"1mon": [{"date": "03.26", "now_price": 5.99, "was_price": 7.49}], "1yr": [{"date": "03.26", "now_price": 5.99, "was_price": 7.49}]}, "21592370_EA": {"1mon": [{"date": "03.19", "now_price": 6.99, "was_price": 7.29}], "1yr": [{"date": "03.19", "now_price": 6.99, "was_price": 7.29}]}, "21639786_EA": {"1mon": [{"date": "03.26", "now_price": 4.49, "was_price": 4.99}], "1yr": [{"date": "03.26", "now_price": 4.49, "was_price": 4.99}]}};
+    });
+  </script>
+
+</head>
+<body>
+<div class='header-container'>
+  <div class='header-row'>
+    <button class='search-button' onclick='showSearchBar()'>
+      <span class='search-icon'>🔍</span> FIND ➜
+    </button>
+    <div class='page-title'>ss_nature_org</div>
+  </div>
+  <div class='creation-time'>Created on: 2025-03-03 00:19:50</div>
+</div>
+<hr class='divider'>
+<div class='header-spacer'></div>
+
+<div id='searchBarContainer'>
+  <input type='text' id='searchInput' placeholder='Search in page...' onkeyup='inPageSearch()'>
+  <span id='searchCount'></span>
+  <button id='closeSearchButton' onclick='hideSearchBar()'>×</button>
+</div>
+
+<div class='item-container' data-product-id='21154073_EA'>
+  <div class='left-side'>
+  <div class='item-image'>
+    <img src='https://assets.shop.loblaws.ca/products/21154073/b1/en/front/21154073_front_a01_@2.png' alt='Shirataki Pasta Spaghetti with Oat' />
+  </div>
+  <!-- "Detail" button (selected by default) -->
+  <button class='vertical-switch-button selected fade-on-load' data-type='detail' onclick='switchToDetail(this)'>On Sale</button>
+  <!-- Toggle switch (disabled by default, label "1 Yr") -->
+  <div class='toggle-switch disabled' data-product-id='21154073_EA'>
+    <input type='checkbox' class='toggle-input' id='toggle-21154073_EA' onchange='toggleMonYr(this)' ontouchend='toggleMonYr(this)'>
+    <label class='toggle-label' for='toggle-21154073_EA'>
+      <span class='toggle-circle'></span>
+      <span class='toggle-text'>Yr.</span>
+    </label>
+  </div>
+</div>
+
+  <div class='right-side'>
+  <div class='view-container'>
+    <div class='detail-view' id='detail-21154073_EA'>
+      <div class='item-name'>
+  <span class='item-number'>#1</span>
+  <span class='first-word' data-original='Shirataki'>Shirataki</span>
+  <span class='product-name-text' data-original='Pasta Spaghetti with Oat'>Pasta Spaghetti with Oat</span>
+</div>
+<div class='expire-on'>Expire On: 2025-03-26</div>
+<div class='was-price'>WAS: <span class='was-price'>$ 6.99</span></div>
+<div class='now-price'>NOW: $ 4.99</div>
+<div class='discount-badge' style='border: 2px solid red; border-radius: 50%; padding: 5px; display: inline-block;'>28.6% OFF</div>
+
+    </div>
+    <div class='chart-view' id='chart-21154073_EA'>
+      <canvas id='canvas-21154073_EA' width='400' height='200'></canvas>
+    </div>
+  </div>
+</div>
+
+</div>
+<div class='item-container' data-product-id='20015323002_EA'>
+  <div class='left-side'>
+  <div class='item-image'>
+    <img src='https://assets.shop.loblaws.ca/products/20015323002/b1/en/angle/20015323002_angle_a01_@2.png' alt='Body Wash, Calming Lavender' />
+  </div>
+  <!-- "Detail" button (selected by default) -->
+  <button class='vertical-switch-button selected fade-on-load' data-type='detail' onclick='switchToDetail(this)'>On Sale</button>
+  <!-- Toggle switch (disabled by default, label "1 Yr") -->
+  <div class='toggle-switch disabled' data-product-id='20015323002_EA'>
+    <input type='checkbox' class='toggle-input' id='toggle-20015323002_EA' onchange='toggleMonYr(this)' ontouchend='toggleMonYr(this)'>
+    <label class='toggle-label' for='toggle-20015323002_EA'>
+      <span class='toggle-circle'></span>
+      <span class='toggle-text'>Yr.</span>
+    </label>
+  </div>
+</div>
+
+  <div class='right-side'>
+  <div class='view-container'>
+    <div class='detail-view' id='detail-20015323002_EA'>
+      <div class='item-name'>
+  <span class='item-number'>#2</span>
+  <span class='first-word' data-original='Body'>Body</span>
+  <span class='product-name-text' data-original='Wash, Calming Lavender'>Wash, Calming Lavender</span>
+</div>
+<div class='expire-on'>Expire On: 2025-03-26</div>
+<div class='was-price'>WAS: <span class='was-price'>$ 14.99</span></div>
+<div class='now-price'>NOW: $ 10.99</div>
+<div class='discount-badge' style='border: 2px solid red; border-radius: 50%; padding: 5px; display: inline-block;'>26.7% OFF</div>
+
+    </div>
+    <div class='chart-view' id='chart-20015323002_EA'>
+      <canvas id='canvas-20015323002_EA' width='400' height='200'></canvas>
+    </div>
+  </div>
+</div>
+
+</div>
+<div class='item-container' data-product-id='21554334_EA'>
+  <div class='left-side'>
+  <div class='item-image'>
+    <img src='https://assets.shop.loblaws.ca/products/21554334/b1/en/front/21554334_front_a01_@2.png' alt='Cauliflower Stalks, Sea Salt' />
+  </div>
+  <!-- "Detail" button (selected by default) -->
+  <button class='vertical-switch-button selected fade-on-load' data-type='detail' onclick='switchToDetail(this)'>On Sale</button>
+  <!-- Toggle switch (disabled by default, label "1 Yr") -->
+  <div class='toggle-switch disabled' data-product-id='21554334_EA'>
+    <input type='checkbox' class='toggle-input' id='toggle-21554334_EA' onchange='toggleMonYr(this)' ontouchend='toggleMonYr(this)'>
+    <label class='toggle-label' for='toggle-21554334_EA'>
+      <span class='toggle-circle'></span>
+      <span class='toggle-text'>Yr.</span>
+    </label>
+  </div>
+</div>
+
+  <div class='right-side'>
+  <div class='view-container'>
+    <div class='detail-view' id='detail-21554334_EA'>
+      <div class='item-name'>
+  <span class='item-number'>#3</span>
+  <span class='first-word' data-original='Cauliflower'>Cauliflower</span>
+  <span class='product-name-text' data-original='Stalks, Sea Salt'>Stalks, Sea Salt</span>
+</div>
+<div class='expire-on'>Expire On: 2025-03-19</div>
+<div class='was-price'>WAS: <span class='was-price'>$ 6.49</span></div>
+<div class='now-price'>NOW: $ 4.99</div>
+<div class='discount-badge' style='border: 2px solid red; border-radius: 50%; padding: 5px; display: inline-block;'>23.1% OFF</div>
+
+    </div>
+    <div class='chart-view' id='chart-21554334_EA'>
+      <canvas id='canvas-21554334_EA' width='400' height='200'></canvas>
+    </div>
+  </div>
+</div>
+
+</div>
+<div class='item-container' data-product-id='20638003003_EA'>
+  <div class='left-side'>
+  <div class='item-image'>
+    <img src='https://assets.shop.loblaws.ca/products/20638003003/b1/en/angle/20638003003_angle_a01_@2.png' alt='Organic Yogurt Mango 3%' />
+  </div>
+  <!-- "Detail" button (selected by default) -->
+  <button class='vertical-switch-button selected fade-on-load' data-type='detail' onclick='switchToDetail(this)'>On Sale</button>
+  <!-- Toggle switch (disabled by default, label "1 Yr") -->
+  <div class='toggle-switch disabled' data-product-id='20638003003_EA'>
+    <input type='checkbox' class='toggle-input' id='toggle-20638003003_EA' onchange='toggleMonYr(this)' ontouchend='toggleMonYr(this)'>
+    <label class='toggle-label' for='toggle-20638003003_EA'>
+      <span class='toggle-circle'></span>
+      <span class='toggle-text'>Yr.</span>
+    </label>
+  </div>
+</div>
+
+  <div class='right-side'>
+  <div class='view-container'>
+    <div class='detail-view' id='detail-20638003003_EA'>
+      <div class='item-name'>
+  <span class='item-number'>#4</span>
+  <span class='first-word' data-original='Organic'>Organic</span>
+  <span class='product-name-text' data-original='Yogurt Mango 3%'>Yogurt Mango 3%</span>
+</div>
+<div class='expire-on'>Expire On: 2025-03-05</div>
+<div class='was-price'>WAS: <span class='was-price'>$ 6.49</span></div>
+<div class='now-price'>NOW: $ 4.99</div>
+<div class='discount-badge' style='border: 2px solid red; border-radius: 50%; padding: 5px; display: inline-block;'>23.1% OFF</div>
+
+    </div>
+    <div class='chart-view' id='chart-20638003003_EA'>
+      <canvas id='canvas-20638003003_EA' width='400' height='200'></canvas>
+    </div>
+  </div>
+</div>
+
+</div>
+<div class='item-container' data-product-id='21503983_EA'>
+  <div class='left-side'>
+  <div class='item-image'>
+    <img src='https://assets.shop.loblaws.ca/products/21503983/b1/en/angle/21503983_angle_a01_@2.png' alt='Ashwagandha Organic' />
+  </div>
+  <!-- "Detail" button (selected by default) -->
+  <button class='vertical-switch-button selected fade-on-load' data-type='detail' onclick='switchToDetail(this)'>On Sale</button>
+  <!-- Toggle switch (disabled by default, label "1 Yr") -->
+  <div class='toggle-switch disabled' data-product-id='21503983_EA'>
+    <input type='checkbox' class='toggle-input' id='toggle-21503983_EA' onchange='toggleMonYr(this)' ontouchend='toggleMonYr(this)'>
+    <label class='toggle-label' for='toggle-21503983_EA'>
+      <span class='toggle-circle'></span>
+      <span class='toggle-text'>Yr.</span>
+    </label>
+  </div>
+</div>
+
+  <div class='right-side'>
+  <div class='view-container'>
+    <div class='detail-view' id='detail-21503983_EA'>
+      <div class='item-name'>
+  <span class='item-number'>#5</span>
+  <span class='first-word' data-original='Ashwagandha'>Ashwagandha</span>
+  <span class='product-name-text' data-original='Organic'>Organic</span>
+</div>
+<div class='expire-on'>Expire On: 2025-03-26</div>
+<div class='was-price'>WAS: <span class='was-price'>$ 31.99</span></div>
+<div class='now-price'>NOW: $ 24.99</div>
+<div class='discount-badge' style='border: 2px solid red; border-radius: 50%; padding: 5px; display: inline-block;'>21.9% OFF</div>
+
+    </div>
+    <div class='chart-view' id='chart-21503983_EA'>
+      <canvas id='canvas-21503983_EA' width='400' height='200'></canvas>
+    </div>
+  </div>
+</div>
+
+</div>
+<div class='item-container' data-product-id='20119952_EA'>
+  <div class='left-side'>
+  <div class='item-image'>
+    <img src='https://assets.shop.loblaws.ca/products/20119952/b1/en/angle/20119952_angle_a01_@2.png' alt='Organic Vegetable Bouillon Cubes' />
+  </div>
+  <!-- "Detail" button (selected by default) -->
+  <button class='vertical-switch-button selected fade-on-load' data-type='detail' onclick='switchToDetail(this)'>On Sale</button>
+  <!-- Toggle switch (disabled by default, label "1 Yr") -->
+  <div class='toggle-switch disabled' data-product-id='20119952_EA'>
+    <input type='checkbox' class='toggle-input' id='toggle-20119952_EA' onchange='toggleMonYr(this)' ontouchend='toggleMonYr(this)'>
+    <label class='toggle-label' for='toggle-20119952_EA'>
+      <span class='toggle-circle'></span>
+      <span class='toggle-text'>Yr.</span>
+    </label>
+  </div>
+</div>
+
+  <div class='right-side'>
+  <div class='view-container'>
+    <div class='detail-view' id='detail-20119952_EA'>
+      <div class='item-name'>
+  <span class='item-number'>#6</span>
+  <span class='first-word' data-original='Organic'>Organic</span>
+  <span class='product-name-text' data-original='Vegetable Bouillon Cubes'>Vegetable Bouillon Cubes</span>
+</div>
+<div class='expire-on'>Expire On: 2025-04-23</div>
+<div class='was-price'>WAS: <span class='was-price'>$ 4.99</span></div>
+<div class='now-price'>NOW: $ 3.99</div>
+<div class='discount-badge' style='border: 2px solid red; border-radius: 50%; padding: 5px; display: inline-block;'>20.0% OFF</div>
+
+    </div>
+    <div class='chart-view' id='chart-20119952_EA'>
+      <canvas id='canvas-20119952_EA' width='400' height='200'></canvas>
+    </div>
+  </div>
+</div>
+
+</div>
+<div class='item-container' data-product-id='21579868_EA'>
+  <div class='left-side'>
+  <div class='item-image'>
+    <img src='https://assets.shop.loblaws.ca/products/21579868/b1/en/angle/21579868_angle_a01_@2.png' alt='Gluten Free Chunky Oat Cookies Dark Chocolate & Coconut' />
+  </div>
+  <!-- "Detail" button (selected by default) -->
+  <button class='vertical-switch-button selected fade-on-load' data-type='detail' onclick='switchToDetail(this)'>On Sale</button>
+  <!-- Toggle switch (disabled by default, label "1 Yr") -->
+  <div class='toggle-switch disabled' data-product-id='21579868_EA'>
+    <input type='checkbox' class='toggle-input' id='toggle-21579868_EA' onchange='toggleMonYr(this)' ontouchend='toggleMonYr(this)'>
+    <label class='toggle-label' for='toggle-21579868_EA'>
+      <span class='toggle-circle'></span>
+      <span class='toggle-text'>Yr.</span>
+    </label>
+  </div>
+</div>
+
+  <div class='right-side'>
+  <div class='view-container'>
+    <div class='detail-view' id='detail-21579868_EA'>
+      <div class='item-name'>
+  <span class='item-number'>#7</span>
+  <span class='first-word' data-original='Gluten'>Gluten</span>
+  <span class='product-name-text' data-original='Free Chunky Oat Cookies Dark Chocolate & Coconut'>Free Chunky Oat Cookies Dark Chocolate & Coconut</span>
+</div>
+<div class='expire-on'>Expire On: 2025-03-26</div>
+<div class='was-price'>WAS: <span class='was-price'>$ 7.49</span></div>
+<div class='now-price'>NOW: $ 5.99</div>
+<div class='discount-badge' style='border: 2px solid red; border-radius: 50%; padding: 5px; display: inline-block;'>20.0% OFF</div>
+
+    </div>
+    <div class='chart-view' id='chart-21579868_EA'>
+      <canvas id='canvas-21579868_EA' width='400' height='200'></canvas>
+    </div>
+  </div>
+</div>
+
+</div>
+<div class='item-container' data-product-id='21497646_EA'>
+  <div class='left-side'>
+  <div class='item-image'>
+    <img src='https://assets.shop.loblaws.ca/products/21497646/b1/en/front/21497646_front_a01_@2.png' alt='Oat Beverage Barista Blend' />
+  </div>
+  <!-- "Detail" button (selected by default) -->
+  <button class='vertical-switch-button selected fade-on-load' data-type='detail' onclick='switchToDetail(this)'>On Sale</button>
+  <!-- Toggle switch (disabled by default, label "1 Yr") -->
+  <div class='toggle-switch disabled' data-product-id='21497646_EA'>
+    <input type='checkbox' class='toggle-input' id='toggle-21497646_EA' onchange='toggleMonYr(this)' ontouchend='toggleMonYr(this)'>
+    <label class='toggle-label' for='toggle-21497646_EA'>
+      <span class='toggle-circle'></span>
+      <span class='toggle-text'>Yr.</span>
+    </label>
+  </div>
+</div>
+
+  <div class='right-side'>
+  <div class='view-container'>
+    <div class='detail-view' id='detail-21497646_EA'>
+      <div class='item-name'>
+  <span class='item-number'>#8</span>
+  <span class='first-word' data-original='Oat'>Oat</span>
+  <span class='product-name-text' data-original='Beverage Barista Blend'>Beverage Barista Blend</span>
+</div>
+<div class='expire-on'>Expire On: 2025-03-12</div>
+<div class='was-price'>WAS: <span class='was-price'>$ 7.49</span></div>
+<div class='now-price'>NOW: $ 5.99</div>
+<div class='discount-badge' style='border: 2px solid red; border-radius: 50%; padding: 5px; display: inline-block;'>20.0% OFF</div>
+
+    </div>
+    <div class='chart-view' id='chart-21497646_EA'>
+      <canvas id='canvas-21497646_EA' width='400' height='200'></canvas>
+    </div>
+  </div>
+</div>
+
+</div>
+<div class='item-container' data-product-id='21432605_EA'>
+  <div class='left-side'>
+  <div class='item-image'>
+    <img src='https://assets.shop.loblaws.ca/products/21432605/b1/en/angle/21432605_angle_a01_@2.png' alt='Toothpaste - Complete Care Whitening Peppermint' />
+  </div>
+  <!-- "Detail" button (selected by default) -->
+  <button class='vertical-switch-button selected fade-on-load' data-type='detail' onclick='switchToDetail(this)'>On Sale</button>
+  <!-- Toggle switch (disabled by default, label "1 Yr") -->
+  <div class='toggle-switch disabled' data-product-id='21432605_EA'>
+    <input type='checkbox' class='toggle-input' id='toggle-21432605_EA' onchange='toggleMonYr(this)' ontouchend='toggleMonYr(this)'>
+    <label class='toggle-label' for='toggle-21432605_EA'>
+      <span class='toggle-circle'></span>
+      <span class='toggle-text'>Yr.</span>
+    </label>
+  </div>
+</div>
+
+  <div class='right-side'>
+  <div class='view-container'>
+    <div class='detail-view' id='detail-21432605_EA'>
+      <div class='item-name'>
+  <span class='item-number'>#9</span>
+  <span class='first-word' data-original='Toothpaste'>Toothpaste</span>
+  <span class='product-name-text' data-original='- Complete Care Whitening Peppermint'>- Complete Care Whitening Peppermint</span>
+</div>
+<div class='expire-on'>Expire On: 2025-03-26</div>
+<div class='was-price'>WAS: <span class='was-price'>$ 7.49</span></div>
+<div class='now-price'>NOW: $ 5.99</div>
+<div class='discount-badge' style='border: 2px solid red; border-radius: 50%; padding: 5px; display: inline-block;'>20.0% OFF</div>
+
+    </div>
+    <div class='chart-view' id='chart-21432605_EA'>
+      <canvas id='canvas-21432605_EA' width='400' height='200'></canvas>
+    </div>
+  </div>
+</div>
+
+</div>
+<div class='item-container' data-product-id='21013295_EA'>
+  <div class='left-side'>
+  <div class='item-image'>
+    <img src='https://assets.shop.loblaws.ca/products/21013295/b1/en/front/21013295_front_a01_@2.png' alt='Body Builder Shampoo Mango' />
+  </div>
+  <!-- "Detail" button (selected by default) -->
+  <button class='vertical-switch-button selected fade-on-load' data-type='detail' onclick='switchToDetail(this)'>On Sale</button>
+  <!-- Toggle switch (disabled by default, label "1 Yr") -->
+  <div class='toggle-switch disabled' data-product-id='21013295_EA'>
+    <input type='checkbox' class='toggle-input' id='toggle-21013295_EA' onchange='toggleMonYr(this)' ontouchend='toggleMonYr(this)'>
+    <label class='toggle-label' for='toggle-21013295_EA'>
+      <span class='toggle-circle'></span>
+      <span class='toggle-text'>Yr.</span>
+    </label>
+  </div>
+</div>
+
+  <div class='right-side'>
+  <div class='view-container'>
+    <div class='detail-view' id='detail-21013295_EA'>
+      <div class='item-name'>
+  <span class='item-number'>#10</span>
+  <span class='first-word' data-original='Body'>Body</span>
+  <span class='product-name-text' data-original='Builder Shampoo Mango'>Builder Shampoo Mango</span>
+</div>
+<div class='expire-on'>Expire On: 2025-03-26</div>
+<div class='was-price'>WAS: <span class='was-price'>$ 9.99</span></div>
+<div class='now-price'>NOW: $ 7.99</div>
+<div class='discount-badge' style='border: 2px solid red; border-radius: 50%; padding: 5px; display: inline-block;'>20.0% OFF</div>
+
+    </div>
+    <div class='chart-view' id='chart-21013295_EA'>
+      <canvas id='canvas-21013295_EA' width='400' height='200'></canvas>
+    </div>
+  </div>
+</div>
+
+</div>
+<div class='item-container' data-product-id='21414914_EA'>
+  <div class='left-side'>
+  <div class='item-image'>
+    <img src='https://assets.shop.loblaws.ca/products/21414914/b1/en/front/21414914_front_a01_@2.png' alt='Test Force' />
+  </div>
+  <!-- "Detail" button (selected by default) -->
+  <button class='vertical-switch-button selected fade-on-load' data-type='detail' onclick='switchToDetail(this)'>On Sale</button>
+  <!-- Toggle switch (disabled by default, label "1 Yr") -->
+  <div class='toggle-switch disabled' data-product-id='21414914_EA'>
+    <input type='checkbox' class='toggle-input' id='toggle-21414914_EA' onchange='toggleMonYr(this)' ontouchend='toggleMonYr(this)'>
+    <label class='toggle-label' for='toggle-21414914_EA'>
+      <span class='toggle-circle'></span>
+      <span class='toggle-text'>Yr.</span>
+    </label>
+  </div>
+</div>
+
+  <div class='right-side'>
+  <div class='view-container'>
+    <div class='detail-view' id='detail-21414914_EA'>
+      <div class='item-name'>
+  <span class='item-number'>#11</span>
+  <span class='first-word' data-original='Test'>Test</span>
+  <span class='product-name-text' data-original='Force'>Force</span>
+</div>
+<div class='expire-on'>Expire On: 2025-03-26</div>
+<div class='was-price'>WAS: <span class='was-price'>$ 35.99</span></div>
+<div class='now-price'>NOW: $ 28.99</div>
+<div class='discount-badge' style='border: 2px solid red; border-radius: 50%; padding: 5px; display: inline-block;'>19.4% OFF</div>
+
+    </div>
+    <div class='chart-view' id='chart-21414914_EA'>
+      <canvas id='canvas-21414914_EA' width='400' height='200'></canvas>
+    </div>
+  </div>
+</div>
+
+</div>
+<div class='item-container' data-product-id='20795117_EA'>
+  <div class='left-side'>
+  <div class='item-image'>
+    <img src='https://assets.shop.loblaws.ca/products/20795117/b1/en/angle/20795117_angle_a01_@2.png' alt='Organic Dark Maple Syrup' />
+  </div>
+  <!-- "Detail" button (selected by default) -->
+  <button class='vertical-switch-button selected fade-on-load' data-type='detail' onclick='switchToDetail(this)'>On Sale</button>
+  <!-- Toggle switch (disabled by default, label "1 Yr") -->
+  <div class='toggle-switch disabled' data-product-id='20795117_EA'>
+    <input type='checkbox' class='toggle-input' id='toggle-20795117_EA' onchange='toggleMonYr(this)' ontouchend='toggleMonYr(this)'>
+    <label class='toggle-label' for='toggle-20795117_EA'>
+      <span class='toggle-circle'></span>
+      <span class='toggle-text'>Yr.</span>
+    </label>
+  </div>
+</div>
+
+  <div class='right-side'>
+  <div class='view-container'>
+    <div class='detail-view' id='detail-20795117_EA'>
+      <div class='item-name'>
+  <span class='item-number'>#12</span>
+  <span class='first-word' data-original='Organic'>Organic</span>
+  <span class='product-name-text' data-original='Dark Maple Syrup'>Dark Maple Syrup</span>
+</div>
+<div class='expire-on'>Expire On: 2025-03-12</div>
+<div class='was-price'>WAS: <span class='was-price'>$ 19.99</span></div>
+<div class='now-price'>NOW: $ 16.49</div>
+<div class='discount-badge' style='border: 2px solid red; border-radius: 50%; padding: 5px; display: inline-block;'>17.5% OFF</div>
+
+    </div>
+    <div class='chart-view' id='chart-20795117_EA'>
+      <canvas id='canvas-20795117_EA' width='400' height='200'></canvas>
+    </div>
+  </div>
+</div>
+
+</div>
+<div class='item-container' data-product-id='20309464001_EA'>
+  <div class='left-side'>
+  <div class='item-image'>
+    <img src='https://assets.shop.loblaws.ca/products/20309464001/b1/en/angle/20309464001_angle_a01_@2.png' alt='Barbara's Cinnamon Puffins Cereal' />
+  </div>
+  <!-- "Detail" button (selected by default) -->
+  <button class='vertical-switch-button selected fade-on-load' data-type='detail' onclick='switchToDetail(this)'>On Sale</button>
+  <!-- Toggle switch (disabled by default, label "1 Yr") -->
+  <div class='toggle-switch disabled' data-product-id='20309464001_EA'>
+    <input type='checkbox' class='toggle-input' id='toggle-20309464001_EA' onchange='toggleMonYr(this)' ontouchend='toggleMonYr(this)'>
+    <label class='toggle-label' for='toggle-20309464001_EA'>
+      <span class='toggle-circle'></span>
+      <span class='toggle-text'>Yr.</span>
+    </label>
+  </div>
+</div>
+
+  <div class='right-side'>
+  <div class='view-container'>
+    <div class='detail-view' id='detail-20309464001_EA'>
+      <div class='item-name'>
+  <span class='item-number'>#13</span>
+  <span class='first-word' data-original='Barbara's'>Barbara's</span>
+  <span class='product-name-text' data-original='Cinnamon Puffins Cereal'>Cinnamon Puffins Cereal</span>
+</div>
+<div class='expire-on'>Expire On: 2025-03-26</div>
+<div class='was-price'>WAS: <span class='was-price'>$ 6.99</span></div>
+<div class='now-price'>NOW: $ 5.79</div>
+<div class='discount-badge' style='border: 2px solid red; border-radius: 50%; padding: 5px; display: inline-block;'>17.2% OFF</div>
+
+    </div>
+    <div class='chart-view' id='chart-20309464001_EA'>
+      <canvas id='canvas-20309464001_EA' width='400' height='200'></canvas>
+    </div>
+  </div>
+</div>
+
+</div>
+<div class='item-container' data-product-id='21293620_EA'>
+  <div class='left-side'>
+  <div class='item-image'>
+    <img src='https://assets.shop.loblaws.ca/products/21293620/b1/en/angle/21293620_angle_a01_@2.png' alt='Marine Clean Collagen, Unflavored Hydrolyzed Collagen Powder, Wild Caught Fish' />
+  </div>
+  <!-- "Detail" button (selected by default) -->
+  <button class='vertical-switch-button selected fade-on-load' data-type='detail' onclick='switchToDetail(this)'>On Sale</button>
+  <!-- Toggle switch (disabled by default, label "1 Yr") -->
+  <div class='toggle-switch disabled' data-product-id='21293620_EA'>
+    <input type='checkbox' class='toggle-input' id='toggle-21293620_EA' onchange='toggleMonYr(this)' ontouchend='toggleMonYr(this)'>
+    <label class='toggle-label' for='toggle-21293620_EA'>
+      <span class='toggle-circle'></span>
+      <span class='toggle-text'>Yr.</span>
+    </label>
+  </div>
+</div>
+
+  <div class='right-side'>
+  <div class='view-container'>
+    <div class='detail-view' id='detail-21293620_EA'>
+      <div class='item-name'>
+  <span class='item-number'>#14</span>
+  <span class='first-word' data-original='Marine'>Marine</span>
+  <span class='product-name-text' data-original='Clean Collagen, Unflavored Hydrolyzed Collagen Powder, Wild Caught Fish'>Clean Collagen, Unflavored Hydrolyzed Collagen Powder, Wild Caught Fish</span>
+</div>
+<div class='expire-on'>Expire On: 2025-03-26</div>
+<div class='was-price'>WAS: <span class='was-price'>$ 34.99</span></div>
+<div class='now-price'>NOW: $ 28.99</div>
+<div class='discount-badge' style='border: 2px solid red; border-radius: 50%; padding: 5px; display: inline-block;'>17.1% OFF</div>
+
+    </div>
+    <div class='chart-view' id='chart-21293620_EA'>
+      <canvas id='canvas-21293620_EA' width='400' height='200'></canvas>
+    </div>
+  </div>
+</div>
+
+</div>
+<div class='item-container' data-product-id='21109025_EA'>
+  <div class='left-side'>
+  <div class='item-image'>
+    <img src='https://assets.shop.loblaws.ca/products/21109025/b1/en/angle/21109025_angle_a01_@2.png' alt='Oat Beverage, Original' />
+  </div>
+  <!-- "Detail" button (selected by default) -->
+  <button class='vertical-switch-button selected fade-on-load' data-type='detail' onclick='switchToDetail(this)'>On Sale</button>
+  <!-- Toggle switch (disabled by default, label "1 Yr") -->
+  <div class='toggle-switch disabled' data-product-id='21109025_EA'>
+    <input type='checkbox' class='toggle-input' id='toggle-21109025_EA' onchange='toggleMonYr(this)' ontouchend='toggleMonYr(this)'>
+    <label class='toggle-label' for='toggle-21109025_EA'>
+      <span class='toggle-circle'></span>
+      <span class='toggle-text'>Yr.</span>
+    </label>
+  </div>
+</div>
+
+  <div class='right-side'>
+  <div class='view-container'>
+    <div class='detail-view' id='detail-21109025_EA'>
+      <div class='item-name'>
+  <span class='item-number'>#15</span>
+  <span class='first-word' data-original='Oat'>Oat</span>
+  <span class='product-name-text' data-original='Beverage, Original'>Beverage, Original</span>
+</div>
+<div class='expire-on'>Expire On: 2025-03-26</div>
+<div class='was-price'>WAS: <span class='was-price'>$ 2.99</span></div>
+<div class='now-price'>NOW: $ 2.49</div>
+<div class='discount-badge' style='border: 2px solid red; border-radius: 50%; padding: 5px; display: inline-block;'>16.7% OFF</div>
+
+    </div>
+    <div class='chart-view' id='chart-21109025_EA'>
+      <canvas id='canvas-21109025_EA' width='400' height='200'></canvas>
+    </div>
+  </div>
+</div>
+
+</div>
+<div class='item-container' data-product-id='21564722_EA'>
+  <div class='left-side'>
+  <div class='item-image'>
+    <img src='https://assets.shop.loblaws.ca/products/21564722/b1/en/angle/21564722_angle_a01_@2.png' alt='Double Chocolate Cookies' />
+  </div>
+  <!-- "Detail" button (selected by default) -->
+  <button class='vertical-switch-button selected fade-on-load' data-type='detail' onclick='switchToDetail(this)'>On Sale</button>
+  <!-- Toggle switch (disabled by default, label "1 Yr") -->
+  <div class='toggle-switch disabled' data-product-id='21564722_EA'>
+    <input type='checkbox' class='toggle-input' id='toggle-21564722_EA' onchange='toggleMonYr(this)' ontouchend='toggleMonYr(this)'>
+    <label class='toggle-label' for='toggle-21564722_EA'>
+      <span class='toggle-circle'></span>
+      <span class='toggle-text'>Yr.</span>
+    </label>
+  </div>
+</div>
+
+  <div class='right-side'>
+  <div class='view-container'>
+    <div class='detail-view' id='detail-21564722_EA'>
+      <div class='item-name'>
+  <span class='item-number'>#16</span>
+  <span class='first-word' data-original='Double'>Double</span>
+  <span class='product-name-text' data-original='Chocolate Cookies'>Chocolate Cookies</span>
+</div>
+<div class='expire-on'>Expire On: 2025-03-26</div>
+<div class='was-price'>WAS: <span class='was-price'>$ 5.99</span></div>
+<div class='now-price'>NOW: $ 4.99</div>
+<div class='discount-badge' style='border: 2px solid red; border-radius: 50%; padding: 5px; display: inline-block;'>16.7% OFF</div>
+
+    </div>
+    <div class='chart-view' id='chart-21564722_EA'>
+      <canvas id='canvas-21564722_EA' width='400' height='200'></canvas>
+    </div>
+  </div>
+</div>
+
+</div>
+<div class='item-container' data-product-id='21553893_EA'>
+  <div class='left-side'>
+  <div class='item-image'>
+    <img src='https://assets.shop.loblaws.ca/products/21553893/b1/en/front/21553893_front_a01_@2.png' alt='Foaming Dish Spray' />
+  </div>
+  <!-- "Detail" button (selected by default) -->
+  <button class='vertical-switch-button selected fade-on-load' data-type='detail' onclick='switchToDetail(this)'>On Sale</button>
+  <!-- Toggle switch (disabled by default, label "1 Yr") -->
+  <div class='toggle-switch disabled' data-product-id='21553893_EA'>
+    <input type='checkbox' class='toggle-input' id='toggle-21553893_EA' onchange='toggleMonYr(this)' ontouchend='toggleMonYr(this)'>
+    <label class='toggle-label' for='toggle-21553893_EA'>
+      <span class='toggle-circle'></span>
+      <span class='toggle-text'>Yr.</span>
+    </label>
+  </div>
+</div>
+
+  <div class='right-side'>
+  <div class='view-container'>
+    <div class='detail-view' id='detail-21553893_EA'>
+      <div class='item-name'>
+  <span class='item-number'>#17</span>
+  <span class='first-word' data-original='Foaming'>Foaming</span>
+  <span class='product-name-text' data-original='Dish Spray'>Dish Spray</span>
+</div>
+<div class='expire-on'>Expire On: 2025-03-19</div>
+<div class='was-price'>WAS: <span class='was-price'>$ 5.99</span></div>
+<div class='now-price'>NOW: $ 4.99</div>
+<div class='discount-badge' style='border: 2px solid red; border-radius: 50%; padding: 5px; display: inline-block;'>16.7% OFF</div>
+
+    </div>
+    <div class='chart-view' id='chart-21553893_EA'>
+      <canvas id='canvas-21553893_EA' width='400' height='200'></canvas>
+    </div>
+  </div>
+</div>
+
+</div>
+<div class='item-container' data-product-id='21565085_EA'>
+  <div class='left-side'>
+  <div class='item-image'>
+    <img src='https://assets.shop.loblaws.ca/products/21565085/b1/en/front/21565085_front_a01_@2.png' alt='Multi Multivitamin Men 50+' />
+  </div>
+  <!-- "Detail" button (selected by default) -->
+  <button class='vertical-switch-button selected fade-on-load' data-type='detail' onclick='switchToDetail(this)'>On Sale</button>
+  <!-- Toggle switch (disabled by default, label "1 Yr") -->
+  <div class='toggle-switch disabled' data-product-id='21565085_EA'>
+    <input type='checkbox' class='toggle-input' id='toggle-21565085_EA' onchange='toggleMonYr(this)' ontouchend='toggleMonYr(this)'>
+    <label class='toggle-label' for='toggle-21565085_EA'>
+      <span class='toggle-circle'></span>
+      <span class='toggle-text'>Yr.</span>
+    </label>
+  </div>
+</div>
+
+  <div class='right-side'>
+  <div class='view-container'>
+    <div class='detail-view' id='detail-21565085_EA'>
+      <div class='item-name'>
+  <span class='item-number'>#18</span>
+  <span class='first-word' data-original='Multi'>Multi</span>
+  <span class='product-name-text' data-original='Multivitamin Men 50+'>Multivitamin Men 50+</span>
+</div>
+<div class='expire-on'>Expire On: 2025-03-26</div>
+<div class='was-price'>WAS: <span class='was-price'>$ 38.99</span></div>
+<div class='now-price'>NOW: $ 32.99</div>
+<div class='discount-badge' style='border: 2px solid red; border-radius: 50%; padding: 5px; display: inline-block;'>15.4% OFF</div>
+
+    </div>
+    <div class='chart-view' id='chart-21565085_EA'>
+      <canvas id='canvas-21565085_EA' width='400' height='200'></canvas>
+    </div>
+  </div>
+</div>
+
+</div>
+<div class='item-container' data-product-id='21108167_EA'>
+  <div class='left-side'>
+  <div class='item-image'>
+    <img src='https://assets.shop.loblaws.ca/products/21108167/b1/en/front/21108167_front_a01_@2.png' alt='Juice Cranberry Organic' />
+  </div>
+  <!-- "Detail" button (selected by default) -->
+  <button class='vertical-switch-button selected fade-on-load' data-type='detail' onclick='switchToDetail(this)'>On Sale</button>
+  <!-- Toggle switch (disabled by default, label "1 Yr") -->
+  <div class='toggle-switch disabled' data-product-id='21108167_EA'>
+    <input type='checkbox' class='toggle-input' id='toggle-21108167_EA' onchange='toggleMonYr(this)' ontouchend='toggleMonYr(this)'>
+    <label class='toggle-label' for='toggle-21108167_EA'>
+      <span class='toggle-circle'></span>
+      <span class='toggle-text'>Yr.</span>
+    </label>
+  </div>
+</div>
+
+  <div class='right-side'>
+  <div class='view-container'>
+    <div class='detail-view' id='detail-21108167_EA'>
+      <div class='item-name'>
+  <span class='item-number'>#19</span>
+  <span class='first-word' data-original='Juice'>Juice</span>
+  <span class='product-name-text' data-original='Cranberry Organic'>Cranberry Organic</span>
+</div>
+<div class='expire-on'>Expire On: 2025-03-12</div>
+<div class='was-price'>WAS: <span class='was-price'>$ 13.99</span></div>
+<div class='now-price'>NOW: $ 11.99</div>
+<div class='discount-badge' style='border: 2px solid red; border-radius: 50%; padding: 5px; display: inline-block;'>14.3% OFF</div>
+
+    </div>
+    <div class='chart-view' id='chart-21108167_EA'>
+      <canvas id='canvas-21108167_EA' width='400' height='200'></canvas>
+    </div>
+  </div>
+</div>
+
+</div>
+<div class='item-container' data-product-id='21293005_EA'>
+  <div class='left-side'>
+  <div class='item-image'>
+    <img src='https://assets.shop.loblaws.ca/products/21293005/b1/en/front/21293005_front_a01_@2.png' alt='Organic Cranberry' />
+  </div>
+  <!-- "Detail" button (selected by default) -->
+  <button class='vertical-switch-button selected fade-on-load' data-type='detail' onclick='switchToDetail(this)'>On Sale</button>
+  <!-- Toggle switch (disabled by default, label "1 Yr") -->
+  <div class='toggle-switch disabled' data-product-id='21293005_EA'>
+    <input type='checkbox' class='toggle-input' id='toggle-21293005_EA' onchange='toggleMonYr(this)' ontouchend='toggleMonYr(this)'>
+    <label class='toggle-label' for='toggle-21293005_EA'>
+      <span class='toggle-circle'></span>
+      <span class='toggle-text'>Yr.</span>
+    </label>
+  </div>
+</div>
+
+  <div class='right-side'>
+  <div class='view-container'>
+    <div class='detail-view' id='detail-21293005_EA'>
+      <div class='item-name'>
+  <span class='item-number'>#20</span>
+  <span class='first-word' data-original='Organic'>Organic</span>
+  <span class='product-name-text' data-original='Cranberry'>Cranberry</span>
+</div>
+<div class='expire-on'>Expire On: 2025-03-12</div>
+<div class='was-price'>WAS: <span class='was-price'>$ 7.49</span></div>
+<div class='now-price'>NOW: $ 6.49</div>
+<div class='discount-badge' style='border: 2px solid red; border-radius: 50%; padding: 5px; display: inline-block;'>13.4% OFF</div>
+
+    </div>
+    <div class='chart-view' id='chart-21293005_EA'>
+      <canvas id='canvas-21293005_EA' width='400' height='200'></canvas>
+    </div>
+  </div>
+</div>
+
+</div>
+<div class='item-container' data-product-id='21388163_EA'>
+  <div class='left-side'>
+  <div class='item-image'>
+    <img src='https://assets.shop.loblaws.ca/products/21388163/b1/en/angle/21388163_angle_a01_@2.png' alt='Simply Real Bar Peanut Butter Chocolate' />
+  </div>
+  <!-- "Detail" button (selected by default) -->
+  <button class='vertical-switch-button selected fade-on-load' data-type='detail' onclick='switchToDetail(this)'>On Sale</button>
+  <!-- Toggle switch (disabled by default, label "1 Yr") -->
+  <div class='toggle-switch disabled' data-product-id='21388163_EA'>
+    <input type='checkbox' class='toggle-input' id='toggle-21388163_EA' onchange='toggleMonYr(this)' ontouchend='toggleMonYr(this)'>
+    <label class='toggle-label' for='toggle-21388163_EA'>
+      <span class='toggle-circle'></span>
+      <span class='toggle-text'>Yr.</span>
+    </label>
+  </div>
+</div>
+
+  <div class='right-side'>
+  <div class='view-container'>
+    <div class='detail-view' id='detail-21388163_EA'>
+      <div class='item-name'>
+  <span class='item-number'>#21</span>
+  <span class='first-word' data-original='Simply'>Simply</span>
+  <span class='product-name-text' data-original='Real Bar Peanut Butter Chocolate'>Real Bar Peanut Butter Chocolate</span>
+</div>
+<div class='expire-on'>Expire On: 2025-03-26</div>
+<div class='was-price'>WAS: <span class='was-price'>$ 3.99</span></div>
+<div class='now-price'>NOW: $ 3.49</div>
+<div class='discount-badge' style='border: 2px solid red; border-radius: 50%; padding: 5px; display: inline-block;'>12.5% OFF</div>
+
+    </div>
+    <div class='chart-view' id='chart-21388163_EA'>
+      <canvas id='canvas-21388163_EA' width='400' height='200'></canvas>
+    </div>
+  </div>
+</div>
+
+</div>
+<div class='item-container' data-product-id='21315359_EA'>
+  <div class='left-side'>
+  <div class='item-image'>
+    <img src='https://assets.shop.loblaws.ca/products/21315359/b1/en/back/21315359_back_a01_@2.png' alt='Go Macro Oatmeal Chocolate Chip Bar' />
+  </div>
+  <!-- "Detail" button (selected by default) -->
+  <button class='vertical-switch-button selected fade-on-load' data-type='detail' onclick='switchToDetail(this)'>On Sale</button>
+  <!-- Toggle switch (disabled by default, label "1 Yr") -->
+  <div class='toggle-switch disabled' data-product-id='21315359_EA'>
+    <input type='checkbox' class='toggle-input' id='toggle-21315359_EA' onchange='toggleMonYr(this)' ontouchend='toggleMonYr(this)'>
+    <label class='toggle-label' for='toggle-21315359_EA'>
+      <span class='toggle-circle'></span>
+      <span class='toggle-text'>Yr.</span>
+    </label>
+  </div>
+</div>
+
+  <div class='right-side'>
+  <div class='view-container'>
+    <div class='detail-view' id='detail-21315359_EA'>
+      <div class='item-name'>
+  <span class='item-number'>#22</span>
+  <span class='first-word' data-original='Go'>Go</span>
+  <span class='product-name-text' data-original='Macro Oatmeal Chocolate Chip Bar'>Macro Oatmeal Chocolate Chip Bar</span>
+</div>
+<div class='expire-on'>Expire On: 2025-03-26</div>
+<div class='was-price'>WAS: <span class='was-price'>$ 3.99</span></div>
+<div class='now-price'>NOW: $ 3.49</div>
+<div class='discount-badge' style='border: 2px solid red; border-radius: 50%; padding: 5px; display: inline-block;'>12.5% OFF</div>
+
+    </div>
+    <div class='chart-view' id='chart-21315359_EA'>
+      <canvas id='canvas-21315359_EA' width='400' height='200'></canvas>
+    </div>
+  </div>
+</div>
+
+</div>
+<div class='item-container' data-product-id='21163384_EA'>
+  <div class='left-side'>
+  <div class='item-image'>
+    <img src='https://assets.shop.loblaws.ca/products/21163384/b1/en/angle/21163384_angle_a01_@2.png' alt='All Natural Soaps Lavender' />
+  </div>
+  <!-- "Detail" button (selected by default) -->
+  <button class='vertical-switch-button selected fade-on-load' data-type='detail' onclick='switchToDetail(this)'>On Sale</button>
+  <!-- Toggle switch (disabled by default, label "1 Yr") -->
+  <div class='toggle-switch disabled' data-product-id='21163384_EA'>
+    <input type='checkbox' class='toggle-input' id='toggle-21163384_EA' onchange='toggleMonYr(this)' ontouchend='toggleMonYr(this)'>
+    <label class='toggle-label' for='toggle-21163384_EA'>
+      <span class='toggle-circle'></span>
+      <span class='toggle-text'>Yr.</span>
+    </label>
+  </div>
+</div>
+
+  <div class='right-side'>
+  <div class='view-container'>
+    <div class='detail-view' id='detail-21163384_EA'>
+      <div class='item-name'>
+  <span class='item-number'>#23</span>
+  <span class='first-word' data-original='All'>All</span>
+  <span class='product-name-text' data-original='Natural Soaps Lavender'>Natural Soaps Lavender</span>
+</div>
+<div class='expire-on'>Expire On: 2025-03-26</div>
+<div class='was-price'>WAS: <span class='was-price'>$ 3.99</span></div>
+<div class='now-price'>NOW: $ 3.49</div>
+<div class='discount-badge' style='border: 2px solid red; border-radius: 50%; padding: 5px; display: inline-block;'>12.5% OFF</div>
+
+    </div>
+    <div class='chart-view' id='chart-21163384_EA'>
+      <canvas id='canvas-21163384_EA' width='400' height='200'></canvas>
+    </div>
+  </div>
+</div>
+
+</div>
+<div class='item-container' data-product-id='21184785_EA'>
+  <div class='left-side'>
+  <div class='item-image'>
+    <img src='https://assets.shop.loblaws.ca/products/21184785/b1/en/angle/21184785_angle_a01_@2.png' alt='Perfect Probiotic 15 Billion Cfu Per Scoop Kids Formula Unflavoured' />
+  </div>
+  <!-- "Detail" button (selected by default) -->
+  <button class='vertical-switch-button selected fade-on-load' data-type='detail' onclick='switchToDetail(this)'>On Sale</button>
+  <!-- Toggle switch (disabled by default, label "1 Yr") -->
+  <div class='toggle-switch disabled' data-product-id='21184785_EA'>
+    <input type='checkbox' class='toggle-input' id='toggle-21184785_EA' onchange='toggleMonYr(this)' ontouchend='toggleMonYr(this)'>
+    <label class='toggle-label' for='toggle-21184785_EA'>
+      <span class='toggle-circle'></span>
+      <span class='toggle-text'>Yr.</span>
+    </label>
+  </div>
+</div>
+
+  <div class='right-side'>
+  <div class='view-container'>
+    <div class='detail-view' id='detail-21184785_EA'>
+      <div class='item-name'>
+  <span class='item-number'>#24</span>
+  <span class='first-word' data-original='Perfect'>Perfect</span>
+  <span class='product-name-text' data-original='Probiotic 15 Billion Cfu Per Scoop Kids Formula Unflavoured'>Probiotic 15 Billion Cfu Per Scoop Kids Formula Unflavoured</span>
+</div>
+<div class='expire-on'>Expire On: 2025-03-26</div>
+<div class='was-price'>WAS: <span class='was-price'>$ 39.99</span></div>
+<div class='now-price'>NOW: $ 34.99</div>
+<div class='discount-badge' style='border: 2px solid red; border-radius: 50%; padding: 5px; display: inline-block;'>12.5% OFF</div>
+
+    </div>
+    <div class='chart-view' id='chart-21184785_EA'>
+      <canvas id='canvas-21184785_EA' width='400' height='200'></canvas>
+    </div>
+  </div>
+</div>
+
+</div>
+<div class='item-container' data-product-id='21387642_EA'>
+  <div class='left-side'>
+  <div class='item-image'>
+    <img src='https://assets.shop.loblaws.ca/products/21387642/b1/en/angle/21387642_angle_a01_@2.png' alt='Mini Chocolate Peanut Butter Bars' />
+  </div>
+  <!-- "Detail" button (selected by default) -->
+  <button class='vertical-switch-button selected fade-on-load' data-type='detail' onclick='switchToDetail(this)'>On Sale</button>
+  <!-- Toggle switch (disabled by default, label "1 Yr") -->
+  <div class='toggle-switch disabled' data-product-id='21387642_EA'>
+    <input type='checkbox' class='toggle-input' id='toggle-21387642_EA' onchange='toggleMonYr(this)' ontouchend='toggleMonYr(this)'>
+    <label class='toggle-label' for='toggle-21387642_EA'>
+      <span class='toggle-circle'></span>
+      <span class='toggle-text'>Yr.</span>
+    </label>
+  </div>
+</div>
+
+  <div class='right-side'>
+  <div class='view-container'>
+    <div class='detail-view' id='detail-21387642_EA'>
+      <div class='item-name'>
+  <span class='item-number'>#25</span>
+  <span class='first-word' data-original='Mini'>Mini</span>
+  <span class='product-name-text' data-original='Chocolate Peanut Butter Bars'>Chocolate Peanut Butter Bars</span>
+</div>
+<div class='expire-on'>Expire On: 2025-03-05</div>
+<div class='was-price'>WAS: <span class='was-price'>$ 16.99</span></div>
+<div class='now-price'>NOW: $ 14.99</div>
+<div class='discount-badge' style='border: 2px solid red; border-radius: 50%; padding: 5px; display: inline-block;'>11.8% OFF</div>
+
+    </div>
+    <div class='chart-view' id='chart-21387642_EA'>
+      <canvas id='canvas-21387642_EA' width='400' height='200'></canvas>
+    </div>
+  </div>
+</div>
+
+</div>
+<div class='item-container' data-product-id='21451497_EA'>
+  <div class='left-side'>
+  <div class='item-image'>
+    <img src='https://assets.shop.loblaws.ca/products/21451497/b1/en/front/21451497_front_a01_@2.png' alt='Organic Blonde Sliced Olives' />
+  </div>
+  <!-- "Detail" button (selected by default) -->
+  <button class='vertical-switch-button selected fade-on-load' data-type='detail' onclick='switchToDetail(this)'>On Sale</button>
+  <!-- Toggle switch (disabled by default, label "1 Yr") -->
+  <div class='toggle-switch disabled' data-product-id='21451497_EA'>
+    <input type='checkbox' class='toggle-input' id='toggle-21451497_EA' onchange='toggleMonYr(this)' ontouchend='toggleMonYr(this)'>
+    <label class='toggle-label' for='toggle-21451497_EA'>
+      <span class='toggle-circle'></span>
+      <span class='toggle-text'>Yr.</span>
+    </label>
+  </div>
+</div>
+
+  <div class='right-side'>
+  <div class='view-container'>
+    <div class='detail-view' id='detail-21451497_EA'>
+      <div class='item-name'>
+  <span class='item-number'>#26</span>
+  <span class='first-word' data-original='Organic'>Organic</span>
+  <span class='product-name-text' data-original='Blonde Sliced Olives'>Blonde Sliced Olives</span>
+</div>
+<div class='expire-on'>Expire On: 2025-03-26</div>
+<div class='was-price'>WAS: <span class='was-price'>$ 8.99</span></div>
+<div class='now-price'>NOW: $ 7.99</div>
+<div class='discount-badge' style='border: 2px solid red; border-radius: 50%; padding: 5px; display: inline-block;'>11.1% OFF</div>
+
+    </div>
+    <div class='chart-view' id='chart-21451497_EA'>
+      <canvas id='canvas-21451497_EA' width='400' height='200'></canvas>
+    </div>
+  </div>
+</div>
+
+</div>
+<div class='item-container' data-product-id='21060358_EA'>
+  <div class='left-side'>
+  <div class='item-image'>
+    <img src='https://assets.shop.loblaws.ca/products/21060358/b1/en/angle/21060358_angle_a01_@2.png' alt='Fermented Organic Gut Superfoods+, Unflavoured Unsweetened Vegan Powder' />
+  </div>
+  <!-- "Detail" button (selected by default) -->
+  <button class='vertical-switch-button selected fade-on-load' data-type='detail' onclick='switchToDetail(this)'>On Sale</button>
+  <!-- Toggle switch (disabled by default, label "1 Yr") -->
+  <div class='toggle-switch disabled' data-product-id='21060358_EA'>
+    <input type='checkbox' class='toggle-input' id='toggle-21060358_EA' onchange='toggleMonYr(this)' ontouchend='toggleMonYr(this)'>
+    <label class='toggle-label' for='toggle-21060358_EA'>
+      <span class='toggle-circle'></span>
+      <span class='toggle-text'>Yr.</span>
+    </label>
+  </div>
+</div>
+
+  <div class='right-side'>
+  <div class='view-container'>
+    <div class='detail-view' id='detail-21060358_EA'>
+      <div class='item-name'>
+  <span class='item-number'>#27</span>
+  <span class='first-word' data-original='Fermented'>Fermented</span>
+  <span class='product-name-text' data-original='Organic Gut Superfoods+, Unflavoured Unsweetened Vegan Powder'>Organic Gut Superfoods+, Unflavoured Unsweetened Vegan Powder</span>
+</div>
+<div class='expire-on'>Expire On: 2025-03-26</div>
+<div class='was-price'>WAS: <span class='was-price'>$ 64.99</span></div>
+<div class='now-price'>NOW: $ 57.99</div>
+<div class='discount-badge' style='border: 2px solid red; border-radius: 50%; padding: 5px; display: inline-block;'>10.8% OFF</div>
+
+    </div>
+    <div class='chart-view' id='chart-21060358_EA'>
+      <canvas id='canvas-21060358_EA' width='400' height='200'></canvas>
+    </div>
+  </div>
+</div>
+
+</div>
+<div class='item-container' data-product-id='21122182_EA'>
+  <div class='left-side'>
+  <div class='item-image'>
+    <img src='https://assets.shop.loblaws.ca/products/21122182/b1/en/angle/21122182_angle_a01_@2.png' alt='Smoothie Cubes Samouraï' />
+  </div>
+  <!-- "Detail" button (selected by default) -->
+  <button class='vertical-switch-button selected fade-on-load' data-type='detail' onclick='switchToDetail(this)'>On Sale</button>
+  <!-- Toggle switch (disabled by default, label "1 Yr") -->
+  <div class='toggle-switch disabled' data-product-id='21122182_EA'>
+    <input type='checkbox' class='toggle-input' id='toggle-21122182_EA' onchange='toggleMonYr(this)' ontouchend='toggleMonYr(this)'>
+    <label class='toggle-label' for='toggle-21122182_EA'>
+      <span class='toggle-circle'></span>
+      <span class='toggle-text'>Yr.</span>
+    </label>
+  </div>
+</div>
+
+  <div class='right-side'>
+  <div class='view-container'>
+    <div class='detail-view' id='detail-21122182_EA'>
+      <div class='item-name'>
+  <span class='item-number'>#28</span>
+  <span class='first-word' data-original='Smoothie'>Smoothie</span>
+  <span class='product-name-text' data-original='Cubes Samouraï'>Cubes Samouraï</span>
+</div>
+<div class='expire-on'>Expire On: 2025-03-05</div>
+<div class='was-price'>WAS: <span class='was-price'>$ 9.49</span></div>
+<div class='now-price'>NOW: $ 8.49</div>
+<div class='discount-badge' style='border: 2px solid red; border-radius: 50%; padding: 5px; display: inline-block;'>10.5% OFF</div>
+
+    </div>
+    <div class='chart-view' id='chart-21122182_EA'>
+      <canvas id='canvas-21122182_EA' width='400' height='200'></canvas>
+    </div>
+  </div>
+</div>
+
+</div>
+<div class='item-container' data-product-id='21639786_EA'>
+  <div class='left-side'>
+  <div class='item-image'>
+    <img src='https://assets.shop.loblaws.ca/products/21639786/b1/en/angle/21639786_angle_a01_@2.png' alt='Rice Dried Shirataki Instant Rice' />
+  </div>
+  <!-- "Detail" button (selected by default) -->
+  <button class='vertical-switch-button selected fade-on-load' data-type='detail' onclick='switchToDetail(this)'>On Sale</button>
+  <!-- Toggle switch (disabled by default, label "1 Yr") -->
+  <div class='toggle-switch disabled' data-product-id='21639786_EA'>
+    <input type='checkbox' class='toggle-input' id='toggle-21639786_EA' onchange='toggleMonYr(this)' ontouchend='toggleMonYr(this)'>
+    <label class='toggle-label' for='toggle-21639786_EA'>
+      <span class='toggle-circle'></span>
+      <span class='toggle-text'>Yr.</span>
+    </label>
+  </div>
+</div>
+
+  <div class='right-side'>
+  <div class='view-container'>
+    <div class='detail-view' id='detail-21639786_EA'>
+      <div class='item-name'>
+  <span class='item-number'>#29</span>
+  <span class='first-word' data-original='Rice'>Rice</span>
+  <span class='product-name-text' data-original='Dried Shirataki Instant Rice'>Dried Shirataki Instant Rice</span>
+</div>
+<div class='expire-on'>Expire On: 2025-03-26</div>
+<div class='was-price'>WAS: <span class='was-price'>$ 4.99</span></div>
+<div class='now-price'>NOW: $ 4.49</div>
+<div class='discount-badge' style='border: 2px solid red; border-radius: 50%; padding: 5px; display: inline-block;'>10.0% OFF</div>
+
+    </div>
+    <div class='chart-view' id='chart-21639786_EA'>
+      <canvas id='canvas-21639786_EA' width='400' height='200'></canvas>
+    </div>
+  </div>
+</div>
+
+</div>
+<div class='item-container' data-product-id='21474078_EA'>
+  <div class='left-side'>
+  <div class='item-image'>
+    <img src='https://assets.shop.loblaws.ca/products/21474078/b1/en/front/21474078_front_a01_@2.png' alt='Plant-Based Ravioli Plant-Based Sausage And Fennel' />
+  </div>
+  <!-- "Detail" button (selected by default) -->
+  <button class='vertical-switch-button selected fade-on-load' data-type='detail' onclick='switchToDetail(this)'>On Sale</button>
+  <!-- Toggle switch (disabled by default, label "1 Yr") -->
+  <div class='toggle-switch disabled' data-product-id='21474078_EA'>
+    <input type='checkbox' class='toggle-input' id='toggle-21474078_EA' onchange='toggleMonYr(this)' ontouchend='toggleMonYr(this)'>
+    <label class='toggle-label' for='toggle-21474078_EA'>
+      <span class='toggle-circle'></span>
+      <span class='toggle-text'>Yr.</span>
+    </label>
+  </div>
+</div>
+
+  <div class='right-side'>
+  <div class='view-container'>
+    <div class='detail-view' id='detail-21474078_EA'>
+      <div class='item-name'>
+  <span class='item-number'>#30</span>
+  <span class='first-word' data-original='Plant-Based'>Plant-Based</span>
+  <span class='product-name-text' data-original='Ravioli Plant-Based Sausage And Fennel'>Ravioli Plant-Based Sausage And Fennel</span>
+</div>
+<div class='expire-on'>Expire On: 2025-03-26</div>
+<div class='was-price'>WAS: <span class='was-price'>$ 11.99</span></div>
+<div class='now-price'>NOW: $ 10.99</div>
+<div class='discount-badge' style='border: 2px solid red; border-radius: 50%; padding: 5px; display: inline-block;'>8.3% OFF</div>
+
+    </div>
+    <div class='chart-view' id='chart-21474078_EA'>
+      <canvas id='canvas-21474078_EA' width='400' height='200'></canvas>
+    </div>
+  </div>
+</div>
+
+</div>
+<div class='item-container' data-product-id='21474074_EA'>
+  <div class='left-side'>
+  <div class='item-image'>
+    <img src='https://assets.shop.loblaws.ca/products/21474074/b1/en/front/21474074_front_a01_@2.png' alt='Plant-Based Ravioli Sweet Basil & Tomato' />
+  </div>
+  <!-- "Detail" button (selected by default) -->
+  <button class='vertical-switch-button selected fade-on-load' data-type='detail' onclick='switchToDetail(this)'>On Sale</button>
+  <!-- Toggle switch (disabled by default, label "1 Yr") -->
+  <div class='toggle-switch disabled' data-product-id='21474074_EA'>
+    <input type='checkbox' class='toggle-input' id='toggle-21474074_EA' onchange='toggleMonYr(this)' ontouchend='toggleMonYr(this)'>
+    <label class='toggle-label' for='toggle-21474074_EA'>
+      <span class='toggle-circle'></span>
+      <span class='toggle-text'>Yr.</span>
+    </label>
+  </div>
+</div>
+
+  <div class='right-side'>
+  <div class='view-container'>
+    <div class='detail-view' id='detail-21474074_EA'>
+      <div class='item-name'>
+  <span class='item-number'>#31</span>
+  <span class='first-word' data-original='Plant-Based'>Plant-Based</span>
+  <span class='product-name-text' data-original='Ravioli Sweet Basil & Tomato'>Ravioli Sweet Basil & Tomato</span>
+</div>
+<div class='expire-on'>Expire On: 2025-03-26</div>
+<div class='was-price'>WAS: <span class='was-price'>$ 11.99</span></div>
+<div class='now-price'>NOW: $ 10.99</div>
+<div class='discount-badge' style='border: 2px solid red; border-radius: 50%; padding: 5px; display: inline-block;'>8.3% OFF</div>
+
+    </div>
+    <div class='chart-view' id='chart-21474074_EA'>
+      <canvas id='canvas-21474074_EA' width='400' height='200'></canvas>
+    </div>
+  </div>
+</div>
+
+</div>
+<div class='item-container' data-product-id='21340730_EA'>
+  <div class='left-side'>
+  <div class='item-image'>
+    <img src='https://assets.shop.loblaws.ca/products/21340730/b1/en/front/21340730_front_a01_@2.png' alt='Eaa+Bcaa Complete Tropical Punch Flavour' />
+  </div>
+  <!-- "Detail" button (selected by default) -->
+  <button class='vertical-switch-button selected fade-on-load' data-type='detail' onclick='switchToDetail(this)'>On Sale</button>
+  <!-- Toggle switch (disabled by default, label "1 Yr") -->
+  <div class='toggle-switch disabled' data-product-id='21340730_EA'>
+    <input type='checkbox' class='toggle-input' id='toggle-21340730_EA' onchange='toggleMonYr(this)' ontouchend='toggleMonYr(this)'>
+    <label class='toggle-label' for='toggle-21340730_EA'>
+      <span class='toggle-circle'></span>
+      <span class='toggle-text'>Yr.</span>
+    </label>
+  </div>
+</div>
+
+  <div class='right-side'>
+  <div class='view-container'>
+    <div class='detail-view' id='detail-21340730_EA'>
+      <div class='item-name'>
+  <span class='item-number'>#32</span>
+  <span class='first-word' data-original='Eaa+Bcaa'>Eaa+Bcaa</span>
+  <span class='product-name-text' data-original='Complete Tropical Punch Flavour'>Complete Tropical Punch Flavour</span>
+</div>
+<div class='expire-on'>Expire On: 2025-03-26</div>
+<div class='was-price'>WAS: <span class='was-price'>$ 36.99</span></div>
+<div class='now-price'>NOW: $ 33.99</div>
+<div class='discount-badge' style='border: 2px solid red; border-radius: 50%; padding: 5px; display: inline-block;'>8.1% OFF</div>
+
+    </div>
+    <div class='chart-view' id='chart-21340730_EA'>
+      <canvas id='canvas-21340730_EA' width='400' height='200'></canvas>
+    </div>
+  </div>
+</div>
+
+</div>
+<div class='item-container' data-product-id='20158835_EA'>
+  <div class='left-side'>
+  <div class='item-image'>
+    <img src='https://assets.shop.loblaws.ca/products/20158835/b1/en/angle/20158835_angle_a01_@2.png' alt='Stodal Honey For Dry Or Wet Cough' />
+  </div>
+  <!-- "Detail" button (selected by default) -->
+  <button class='vertical-switch-button selected fade-on-load' data-type='detail' onclick='switchToDetail(this)'>On Sale</button>
+  <!-- Toggle switch (disabled by default, label "1 Yr") -->
+  <div class='toggle-switch disabled' data-product-id='20158835_EA'>
+    <input type='checkbox' class='toggle-input' id='toggle-20158835_EA' onchange='toggleMonYr(this)' ontouchend='toggleMonYr(this)'>
+    <label class='toggle-label' for='toggle-20158835_EA'>
+      <span class='toggle-circle'></span>
+      <span class='toggle-text'>Yr.</span>
+    </label>
+  </div>
+</div>
+
+  <div class='right-side'>
+  <div class='view-container'>
+    <div class='detail-view' id='detail-20158835_EA'>
+      <div class='item-name'>
+  <span class='item-number'>#33</span>
+  <span class='first-word' data-original='Stodal'>Stodal</span>
+  <span class='product-name-text' data-original='Honey For Dry Or Wet Cough'>Honey For Dry Or Wet Cough</span>
+</div>
+<div class='expire-on'>Expire On: 2025-03-26</div>
+<div class='was-price'>WAS: <span class='was-price'>$ 12.99</span></div>
+<div class='now-price'>NOW: $ 11.99</div>
+<div class='discount-badge' style='border: 2px solid red; border-radius: 50%; padding: 5px; display: inline-block;'>7.7% OFF</div>
+
+    </div>
+    <div class='chart-view' id='chart-20158835_EA'>
+      <canvas id='canvas-20158835_EA' width='400' height='200'></canvas>
+    </div>
+  </div>
+</div>
+
+</div>
+<div class='item-container' data-product-id='21525923_EA'>
+  <div class='left-side'>
+  <div class='item-image'>
+    <img src='https://assets.shop.loblaws.ca/products/21525923/b1/en/angle/21525923_angle_a01_@2.png' alt='Bioactive Honey Manuka Mgo 550+' />
+  </div>
+  <!-- "Detail" button (selected by default) -->
+  <button class='vertical-switch-button selected fade-on-load' data-type='detail' onclick='switchToDetail(this)'>On Sale</button>
+  <!-- Toggle switch (disabled by default, label "1 Yr") -->
+  <div class='toggle-switch disabled' data-product-id='21525923_EA'>
+    <input type='checkbox' class='toggle-input' id='toggle-21525923_EA' onchange='toggleMonYr(this)' ontouchend='toggleMonYr(this)'>
+    <label class='toggle-label' for='toggle-21525923_EA'>
+      <span class='toggle-circle'></span>
+      <span class='toggle-text'>Yr.</span>
+    </label>
+  </div>
+</div>
+
+  <div class='right-side'>
+  <div class='view-container'>
+    <div class='detail-view' id='detail-21525923_EA'>
+      <div class='item-name'>
+  <span class='item-number'>#34</span>
+  <span class='first-word' data-original='Bioactive'>Bioactive</span>
+  <span class='product-name-text' data-original='Honey Manuka Mgo 550+'>Honey Manuka Mgo 550+</span>
+</div>
+<div class='expire-on'>Expire On: 2025-03-12</div>
+<div class='was-price'>WAS: <span class='was-price'>$ 32.99</span></div>
+<div class='now-price'>NOW: $ 30.49</div>
+<div class='discount-badge' style='border: 2px solid red; border-radius: 50%; padding: 5px; display: inline-block;'>7.6% OFF</div>
+
+    </div>
+    <div class='chart-view' id='chart-21525923_EA'>
+      <canvas id='canvas-21525923_EA' width='400' height='200'></canvas>
+    </div>
+  </div>
+</div>
+
+</div>
+<div class='item-container' data-product-id='21238137_EA'>
+  <div class='left-side'>
+  <div class='item-image'>
+    <img src='https://assets.shop.loblaws.ca/products/21238137/b1/en/angle/21238137_angle_a01_@2.png' alt='Organic Cacao Oats' />
+  </div>
+  <!-- "Detail" button (selected by default) -->
+  <button class='vertical-switch-button selected fade-on-load' data-type='detail' onclick='switchToDetail(this)'>On Sale</button>
+  <!-- Toggle switch (disabled by default, label "1 Yr") -->
+  <div class='toggle-switch disabled' data-product-id='21238137_EA'>
+    <input type='checkbox' class='toggle-input' id='toggle-21238137_EA' onchange='toggleMonYr(this)' ontouchend='toggleMonYr(this)'>
+    <label class='toggle-label' for='toggle-21238137_EA'>
+      <span class='toggle-circle'></span>
+      <span class='toggle-text'>Yr.</span>
+    </label>
+  </div>
+</div>
+
+  <div class='right-side'>
+  <div class='view-container'>
+    <div class='detail-view' id='detail-21238137_EA'>
+      <div class='item-name'>
+  <span class='item-number'>#35</span>
+  <span class='first-word' data-original='Organic'>Organic</span>
+  <span class='product-name-text' data-original='Cacao Oats'>Cacao Oats</span>
+</div>
+<div class='expire-on'>Expire On: 2025-03-19</div>
+<div class='was-price'>WAS: <span class='was-price'>$ 6.99</span></div>
+<div class='now-price'>NOW: $ 6.49</div>
+<div class='discount-badge' style='border: 2px solid red; border-radius: 50%; padding: 5px; display: inline-block;'>7.2% OFF</div>
+
+    </div>
+    <div class='chart-view' id='chart-21238137_EA'>
+      <canvas id='canvas-21238137_EA' width='400' height='200'></canvas>
+    </div>
+  </div>
+</div>
+
+</div>
+<div class='item-container' data-product-id='20978991_EA'>
+  <div class='left-side'>
+  <div class='item-image'>
+    <img src='https://assets.shop.loblaws.ca/products/20978991/b1/en/front/20978991_front_a01_@2.png' alt='Gluten Free Organic Honey Granola' />
+  </div>
+  <!-- "Detail" button (selected by default) -->
+  <button class='vertical-switch-button selected fade-on-load' data-type='detail' onclick='switchToDetail(this)'>On Sale</button>
+  <!-- Toggle switch (disabled by default, label "1 Yr") -->
+  <div class='toggle-switch disabled' data-product-id='20978991_EA'>
+    <input type='checkbox' class='toggle-input' id='toggle-20978991_EA' onchange='toggleMonYr(this)' ontouchend='toggleMonYr(this)'>
+    <label class='toggle-label' for='toggle-20978991_EA'>
+      <span class='toggle-circle'></span>
+      <span class='toggle-text'>Yr.</span>
+    </label>
+  </div>
+</div>
+
+  <div class='right-side'>
+  <div class='view-container'>
+    <div class='detail-view' id='detail-20978991_EA'>
+      <div class='item-name'>
+  <span class='item-number'>#36</span>
+  <span class='first-word' data-original='Gluten'>Gluten</span>
+  <span class='product-name-text' data-original='Free Organic Honey Granola'>Free Organic Honey Granola</span>
+</div>
+<div class='expire-on'>Expire On: 2025-03-05</div>
+<div class='was-price'>WAS: <span class='was-price'>$ 6.99</span></div>
+<div class='now-price'>NOW: $ 6.49</div>
+<div class='discount-badge' style='border: 2px solid red; border-radius: 50%; padding: 5px; display: inline-block;'>7.2% OFF</div>
+
+    </div>
+    <div class='chart-view' id='chart-20978991_EA'>
+      <canvas id='canvas-20978991_EA' width='400' height='200'></canvas>
+    </div>
+  </div>
+</div>
+
+</div>
+<div class='item-container' data-product-id='20978912_EA'>
+  <div class='left-side'>
+  <div class='item-image'>
+    <img src='https://assets.shop.loblaws.ca/products/20978912/b1/en/front/20978912_front_a01_@2.png' alt='Love Crunch, Dark Chocolate & Peanut Butter' />
+  </div>
+  <!-- "Detail" button (selected by default) -->
+  <button class='vertical-switch-button selected fade-on-load' data-type='detail' onclick='switchToDetail(this)'>On Sale</button>
+  <!-- Toggle switch (disabled by default, label "1 Yr") -->
+  <div class='toggle-switch disabled' data-product-id='20978912_EA'>
+    <input type='checkbox' class='toggle-input' id='toggle-20978912_EA' onchange='toggleMonYr(this)' ontouchend='toggleMonYr(this)'>
+    <label class='toggle-label' for='toggle-20978912_EA'>
+      <span class='toggle-circle'></span>
+      <span class='toggle-text'>Yr.</span>
+    </label>
+  </div>
+</div>
+
+  <div class='right-side'>
+  <div class='view-container'>
+    <div class='detail-view' id='detail-20978912_EA'>
+      <div class='item-name'>
+  <span class='item-number'>#37</span>
+  <span class='first-word' data-original='Love'>Love</span>
+  <span class='product-name-text' data-original='Crunch, Dark Chocolate & Peanut Butter'>Crunch, Dark Chocolate & Peanut Butter</span>
+</div>
+<div class='expire-on'>Expire On: 2025-03-05</div>
+<div class='was-price'>WAS: <span class='was-price'>$ 6.99</span></div>
+<div class='now-price'>NOW: $ 6.49</div>
+<div class='discount-badge' style='border: 2px solid red; border-radius: 50%; padding: 5px; display: inline-block;'>7.2% OFF</div>
+
+    </div>
+    <div class='chart-view' id='chart-20978912_EA'>
+      <canvas id='canvas-20978912_EA' width='400' height='200'></canvas>
+    </div>
+  </div>
+</div>
+
+</div>
+<div class='item-container' data-product-id='20861935_EA'>
+  <div class='left-side'>
+  <div class='item-image'>
+    <img src='https://assets.shop.loblaws.ca/products/20861935/b1/en/angle/20861935_angle_a01_@2.png' alt='Almond For Coffee, Vanilla, Plant Based, Dairy Free Coffee Creamer' />
+  </div>
+  <!-- "Detail" button (selected by default) -->
+  <button class='vertical-switch-button selected fade-on-load' data-type='detail' onclick='switchToDetail(this)'>On Sale</button>
+  <!-- Toggle switch (disabled by default, label "1 Yr") -->
+  <div class='toggle-switch disabled' data-product-id='20861935_EA'>
+    <input type='checkbox' class='toggle-input' id='toggle-20861935_EA' onchange='toggleMonYr(this)' ontouchend='toggleMonYr(this)'>
+    <label class='toggle-label' for='toggle-20861935_EA'>
+      <span class='toggle-circle'></span>
+      <span class='toggle-text'>Yr.</span>
+    </label>
+  </div>
+</div>
+
+  <div class='right-side'>
+  <div class='view-container'>
+    <div class='detail-view' id='detail-20861935_EA'>
+      <div class='item-name'>
+  <span class='item-number'>#38</span>
+  <span class='first-word' data-original='Almond'>Almond</span>
+  <span class='product-name-text' data-original='For Coffee, Vanilla, Plant Based, Dairy Free Coffee Creamer'>For Coffee, Vanilla, Plant Based, Dairy Free Coffee Creamer</span>
+</div>
+<div class='expire-on'>Expire On: 2025-03-19</div>
+<div class='was-price'>WAS: <span class='was-price'>$ 2.99</span></div>
+<div class='now-price'>NOW: $ 2.79</div>
+<div class='discount-badge' style='border: 2px solid red; border-radius: 50%; padding: 5px; display: inline-block;'>6.7% OFF</div>
+
+    </div>
+    <div class='chart-view' id='chart-20861935_EA'>
+      <canvas id='canvas-20861935_EA' width='400' height='200'></canvas>
+    </div>
+  </div>
+</div>
+
+</div>
+<div class='item-container' data-product-id='21451698_EA'>
+  <div class='left-side'>
+  <div class='item-image'>
+    <img src='https://assets.shop.loblaws.ca/products/21451698/b1/en/angle/21451698_angle_a01_@2.png' alt='Citrus Fresh Dishwashing Liquid' />
+  </div>
+  <!-- "Detail" button (selected by default) -->
+  <button class='vertical-switch-button selected fade-on-load' data-type='detail' onclick='switchToDetail(this)'>On Sale</button>
+  <!-- Toggle switch (disabled by default, label "1 Yr") -->
+  <div class='toggle-switch disabled' data-product-id='21451698_EA'>
+    <input type='checkbox' class='toggle-input' id='toggle-21451698_EA' onchange='toggleMonYr(this)' ontouchend='toggleMonYr(this)'>
+    <label class='toggle-label' for='toggle-21451698_EA'>
+      <span class='toggle-circle'></span>
+      <span class='toggle-text'>Yr.</span>
+    </label>
+  </div>
+</div>
+
+  <div class='right-side'>
+  <div class='view-container'>
+    <div class='detail-view' id='detail-21451698_EA'>
+      <div class='item-name'>
+  <span class='item-number'>#39</span>
+  <span class='first-word' data-original='Citrus'>Citrus</span>
+  <span class='product-name-text' data-original='Fresh Dishwashing Liquid'>Fresh Dishwashing Liquid</span>
+</div>
+<div class='expire-on'>Expire On: 2025-03-26</div>
+<div class='was-price'>WAS: <span class='was-price'>$ 16.99</span></div>
+<div class='now-price'>NOW: $ 15.99</div>
+<div class='discount-badge' style='border: 2px solid red; border-radius: 50%; padding: 5px; display: inline-block;'>5.9% OFF</div>
+
+    </div>
+    <div class='chart-view' id='chart-21451698_EA'>
+      <canvas id='canvas-21451698_EA' width='400' height='200'></canvas>
+    </div>
+  </div>
+</div>
+
+</div>
+<div class='item-container' data-product-id='21418097_EA'>
+  <div class='left-side'>
+  <div class='item-image'>
+    <img src='https://assets.shop.loblaws.ca/products/21418097/b1/en/angle/21418097_angle_a01_@2.png' alt='60 Billion Cfu Per Capsule Extra Strength Perfect Probiotic' />
+  </div>
+  <!-- "Detail" button (selected by default) -->
+  <button class='vertical-switch-button selected fade-on-load' data-type='detail' onclick='switchToDetail(this)'>On Sale</button>
+  <!-- Toggle switch (disabled by default, label "1 Yr") -->
+  <div class='toggle-switch disabled' data-product-id='21418097_EA'>
+    <input type='checkbox' class='toggle-input' id='toggle-21418097_EA' onchange='toggleMonYr(this)' ontouchend='toggleMonYr(this)'>
+    <label class='toggle-label' for='toggle-21418097_EA'>
+      <span class='toggle-circle'></span>
+      <span class='toggle-text'>Yr.</span>
+    </label>
+  </div>
+</div>
+
+  <div class='right-side'>
+  <div class='view-container'>
+    <div class='detail-view' id='detail-21418097_EA'>
+      <div class='item-name'>
+  <span class='item-number'>#40</span>
+  <span class='first-word' data-original='60'>60</span>
+  <span class='product-name-text' data-original='Billion Cfu Per Capsule Extra Strength Perfect Probiotic'>Billion Cfu Per Capsule Extra Strength Perfect Probiotic</span>
+</div>
+<div class='expire-on'>Expire On: 2025-03-26</div>
+<div class='was-price'>WAS: <span class='was-price'>$ 60.99</span></div>
+<div class='now-price'>NOW: $ 57.99</div>
+<div class='discount-badge' style='border: 2px solid red; border-radius: 50%; padding: 5px; display: inline-block;'>4.9% OFF</div>
+
+    </div>
+    <div class='chart-view' id='chart-21418097_EA'>
+      <canvas id='canvas-21418097_EA' width='400' height='200'></canvas>
+    </div>
+  </div>
+</div>
+
+</div>
+<div class='item-container' data-product-id='21592370_EA'>
+  <div class='left-side'>
+  <div class='item-image'>
+    <img src='https://assets.shop.loblaws.ca/products/21592370/b1/en/front/21592370_front_a01_@2.png' alt='Plant-based Cheese Feta Style' />
+  </div>
+  <!-- "Detail" button (selected by default) -->
+  <button class='vertical-switch-button selected fade-on-load' data-type='detail' onclick='switchToDetail(this)'>On Sale</button>
+  <!-- Toggle switch (disabled by default, label "1 Yr") -->
+  <div class='toggle-switch disabled' data-product-id='21592370_EA'>
+    <input type='checkbox' class='toggle-input' id='toggle-21592370_EA' onchange='toggleMonYr(this)' ontouchend='toggleMonYr(this)'>
+    <label class='toggle-label' for='toggle-21592370_EA'>
+      <span class='toggle-circle'></span>
+      <span class='toggle-text'>Yr.</span>
+    </label>
+  </div>
+</div>
+
+  <div class='right-side'>
+  <div class='view-container'>
+    <div class='detail-view' id='detail-21592370_EA'>
+      <div class='item-name'>
+  <span class='item-number'>#41</span>
+  <span class='first-word' data-original='Plant-based'>Plant-based</span>
+  <span class='product-name-text' data-original='Cheese Feta Style'>Cheese Feta Style</span>
+</div>
+<div class='expire-on'>Expire On: 2025-03-19</div>
+<div class='was-price'>WAS: <span class='was-price'>$ 7.29</span></div>
+<div class='now-price'>NOW: $ 6.99</div>
+<div class='discount-badge' style='border: 2px solid red; border-radius: 50%; padding: 5px; display: inline-block;'>4.1% OFF</div>
+
+    </div>
+    <div class='chart-view' id='chart-21592370_EA'>
+      <canvas id='canvas-21592370_EA' width='400' height='200'></canvas>
+    </div>
+  </div>
+</div>
+
+</div>
+<div class='item-container' data-product-id='21391839_EA'>
+  <div class='left-side'>
+  <div class='item-image'>
+    <img src='https://assets.shop.loblaws.ca/products/21391839/b1/en/front/21391839_front_a01_@2.png' alt='Mushroom Complex 90 Vegetable Capsules' />
+  </div>
+  <!-- "Detail" button (selected by default) -->
+  <button class='vertical-switch-button selected fade-on-load' data-type='detail' onclick='switchToDetail(this)'>On Sale</button>
+  <!-- Toggle switch (disabled by default, label "1 Yr") -->
+  <div class='toggle-switch disabled' data-product-id='21391839_EA'>
+    <input type='checkbox' class='toggle-input' id='toggle-21391839_EA' onchange='toggleMonYr(this)' ontouchend='toggleMonYr(this)'>
+    <label class='toggle-label' for='toggle-21391839_EA'>
+      <span class='toggle-circle'></span>
+      <span class='toggle-text'>Yr.</span>
+    </label>
+  </div>
+</div>
+
+  <div class='right-side'>
+  <div class='view-container'>
+    <div class='detail-view' id='detail-21391839_EA'>
+      <div class='item-name'>
+  <span class='item-number'>#42</span>
+  <span class='first-word' data-original='Mushroom'>Mushroom</span>
+  <span class='product-name-text' data-original='Complex 90 Vegetable Capsules'>Complex 90 Vegetable Capsules</span>
+</div>
+<div class='expire-on'>Expire On: 2025-03-26</div>
+<div class='was-price'>WAS: <span class='was-price'>$ 42.49</span></div>
+<div class='now-price'>NOW: $ 40.99</div>
+<div class='discount-badge' style='border: 2px solid red; border-radius: 50%; padding: 5px; display: inline-block;'>3.5% OFF</div>
+
+    </div>
+    <div class='chart-view' id='chart-21391839_EA'>
+      <canvas id='canvas-21391839_EA' width='400' height='200'></canvas>
+    </div>
+  </div>
+</div>
+
+</div>
+
+
+<script>
+var chartInstances = {};
+
+/**
+ * "Detail" button: show discount (detail) view and hide chart view.
+ */
+function switchToDetail(btn) {
+    var container = btn.closest('.item-container');
+    container.querySelectorAll('.vertical-switch-button').forEach(function(b) {
+        b.classList.remove('selected');
+    });
+    btn.classList.add('selected');
+
+    var toggleSwitch = container.querySelector('.toggle-switch');
+    toggleSwitch.classList.add('disabled');
+    var toggleInput = container.querySelector('.toggle-input');
+    toggleInput.checked = false;
+    var toggleLabel = toggleSwitch.querySelector('.toggle-text');
+    toggleLabel.textContent = "1 Yr";
+
+    var detailView = container.querySelector('.detail-view');
+    var chartView = container.querySelector('.chart-view');
+    detailView.style.opacity = '1';
+    detailView.style.display = 'block';
+    chartView.style.opacity = '0';
+    chartView.style.display = 'none';
+
+    var productId = container.getAttribute('data-product-id');
+    if (chartInstances[productId]) {
+        chartInstances[productId].destroy();
+        delete chartInstances[productId];
+    }
+}
+
+/**
+ * Toggle switch handler:
+ * When toggled, hide discount view and show chart view immediately.
+ * If checked, render a 1 Yr line chart; if unchecked, render a 1 Mon stacked bar chart.
+ */
+function toggleMonYr(checkbox) {
+    var container = checkbox.closest('.item-container');
+    var toggleSwitch = container.querySelector('.toggle-switch');
+    if (toggleSwitch.classList.contains('disabled')) {
+        toggleSwitch.classList.remove('disabled');
+    }
+    var detailBtn = container.querySelector('[data-type="detail"]');
+    detailBtn.classList.remove('selected');
+
+    var detailView = container.querySelector('.detail-view');
+    var chartView = container.querySelector('.chart-view');
+    detailView.style.opacity = '0';
+    detailView.style.display = 'none';
+    chartView.style.opacity = '1';
+    chartView.style.display = 'block';
+
+    var productId = container.getAttribute('data-product-id');
+    var toggleLabel = checkbox.nextElementSibling.querySelector('.toggle-text');
+    var data1mon = window.priceHistoryData[productId]["1mon"] || [];
+    var data1yr  = window.priceHistoryData[productId]["1yr"]  || [];
+
+    if (chartInstances[productId]) {
+        chartInstances[productId].destroy();
+        delete chartInstances[productId];
+    }
+
+    if (checkbox.checked) {
+        toggleLabel.textContent = "Yr.";
+        var filtered = data1yr.filter(function(d) {
+            return d.was_price > 0 && d.now_price > 0;
+        });
+        renderLineChart(productId, filtered);
+    } else {
+        toggleLabel.textContent = "Mon";
+        var filtered = data1mon.filter(function(d) {
+            return d.was_price > 0 && d.now_price > 0;
+        });
+        renderStackedBarChart(productId, filtered);
+    }
+}
+
+/**
+ * Renders a stacked bar chart (1 Mon data) using Chart.js.
+ * Legend is disabled.
+ */
+function renderStackedBarChart(productId, data) {
+  const ctx = document.getElementById('canvas-' + productId).getContext('2d');
+  if (!data || data.length === 0) {
+    ctx.font = "14px Arial";
+    ctx.fillText("No 1 Mon data", 10, 50);
+    return;
+  }
+  let maxWas = 0;
+  data.forEach(function(d) {
+    if (d.was_price > maxWas) { maxWas = d.was_price; }
+  });
+  const yAxisMax = maxWas * 1.1;
+  chartInstances[productId] = new Chart(ctx, {
+    type: 'bar',
+    data: {
+      labels: data.map(function(d) { return d.date; }),
+      datasets: [
+        {
+          label: 'Now Price',
+          data: data.map(function(d) { return d.now_price; }),
+          backgroundColor: '#009900',
+          stack: 'Stack 0',
+          datalabels: {
+            formatter: function(value, context) {
+              return data[context.dataIndex].now_price.toFixed(2);
+            },
+            color: '#000',
+            font: { size: 10, weight: 'normal' },
+            anchor: 'end',
+            align: 'end',
+            offset: -4
+          }
+        },
+        {
+          label: 'Was Price',
+          data: data.map(function(d) { return d.was_price - d.now_price; }),
+          backgroundColor: '#FF9900',
+          stack: 'Stack 0',
+          datalabels: {
+            formatter: function(value, context) {
+              return data[context.dataIndex].was_price.toFixed(2);
+            },
+            color: '#000',
+            font: { size: 10, weight: 'normal' },
+            anchor: 'end',
+            align: 'end',
+            offset: 2
+          }
+        },
+        {
+          type: 'line',
+          label: 'Now Price Trend',
+          data: data.map(function(d) { return d.now_price; }),
+          borderColor: '#000',
+          borderWidth: 1,
+          fill: false,
+          tension: 0.1,
+          pointBackgroundColor: '#000',
+          order: 99,
+          z: 9999,
+          yAxisID: 'yLine',
+          datalabels: { display: false }
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        axisTitleBackgroundPlugin: { backgroundColor: '#ddd' },
+        datalabels: { clip: false },
+        legend: { display: false }
+      },
+      scales: {
+        x: {
+          stacked: true,
+          title: { display: false, text: 'Date' }
+        },
+        y: {
+          stacked: true,
+          beginAtZero: true,
+          title: { display: false, text: 'Price' },
+          max: yAxisMax
+        },
+        yLine: {
+          beginAtZero: true,
+          display: false,
+          min: 0,
+          max: yAxisMax
+        }
+      }
+    }
+  });
+}
+
+/**
+ * Renders a two-line chart (1 Yr data) using Chart.js.
+ * Legend is disabled.
+ */
+function renderLineChart(productId, data) {
+  const ctx = document.getElementById('canvas-' + productId).getContext('2d');
+  if (!data || data.length === 0) {
+    ctx.font = "14px Arial";
+    ctx.fillText("No 1 Yr data", 10, 50);
+    return;
+  }
+  let maxPrice = 0;
+  data.forEach(function(d) {
+    if (d.was_price > maxPrice) { maxPrice = d.was_price; }
+    if (d.now_price > maxPrice) { maxPrice = d.now_price; }
+  });
+  const yAxisMax = maxPrice * 1.2;
+  chartInstances[productId] = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: data.map(function(d) { return d.date; }),
+      datasets: [
+        {
+          label: 'Was Price',
+          data: data.map(function(d) { return d.was_price; }),
+          borderColor: '#0077cc',
+          backgroundColor: '#0077cc',
+          fill: false,
+          tension: 0.1,
+          datalabels: {
+            color: '#0077cc',
+            anchor: 'end',
+            align: 'end',
+            offset: 4,
+            font: { size: 10, weight: 'normal' },
+            formatter: function(value) { return value.toFixed(2); }
+          }
+        },
+        {
+          label: 'Now Price',
+          data: data.map(function(d) { return d.now_price; }),
+          borderColor: '#009900',
+          backgroundColor: '#009900',
+          fill: false,
+          tension: 0.1,
+          datalabels: {
+            color: '#009900',
+            anchor: 'start',
+            align: 'start',
+            offset: 4,
+            font: { size: 10, weight: 'normal' },
+            formatter: function(value) { return value.toFixed(2); }
+          }
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      plugins: {
+        datalabels: { clip: false },
+        legend: { display: false }
+      },
+      scales: {
+        x: { title: { display: false, text: 'Date' } },
+        y: { title: { display: false, text: 'Price' }, beginAtZero: true, max: yAxisMax }
+      }
+    }
+  });
+}
+
+function showSearchBar() {
+    var header = document.querySelector('.header-container');
+    header.style.display = 'none';
+    var searchBar = document.getElementById('searchBarContainer');
+    searchBar.style.display = 'flex';
+    setTimeout(function() {
+        searchBar.style.opacity = '1';
+    }, 10);
+    document.getElementById('searchInput').focus();
+}
+
+function hideSearchBar() {
+    var searchBar = document.getElementById('searchBarContainer');
+    var header = document.querySelector('.header-container');
+    var searchInput = document.getElementById('searchInput');
+    searchInput.value = '';
+    var firstElems = document.getElementsByClassName('first-word');
+    var secondElems = document.getElementsByClassName('product-name-text');
+    for (var i = 0; i < firstElems.length; i++) {
+        firstElems[i].innerHTML = firstElems[i].dataset.original || firstElems[i].innerHTML;
+    }
+    for (var i = 0; i < secondElems.length; i++) {
+        secondElems[i].innerHTML = secondElems[i].dataset.original || secondElems[i].innerHTML;
+    }
+    var items = document.getElementsByClassName('item-container');
+    for (var i = 0; i < items.length; i++) {
+        items[i].style.display = '';
+    }
+    document.getElementById('searchCount').innerText = '';
+    searchBar.style.opacity = '0';
+    setTimeout(function() {
+        searchBar.style.display = 'none';
+        header.style.display = 'flex';
+    }, 500);
+}
+
+function inPageSearch() {
+    var input = document.getElementById('searchInput').value.trim();
+    var term = input.toLowerCase();
+    var items = document.getElementsByClassName('item-container');
+    var visibleCount = 0;
+    for (var i = 0; i < items.length; i++) {
+        var firstElem = items[i].querySelector('.first-word');
+        var secondElem = items[i].querySelector('.product-name-text');
+        var fullName = (firstElem.textContent + ' ' + secondElem.textContent).toLowerCase();
+        if (term === '' || fullName.indexOf(term) > -1) {
+            items[i].style.display = '';
+            visibleCount++;
+            if (term !== '') {
+                firstElem.innerHTML = (firstElem.dataset.original || firstElem.textContent)
+                                      .replace(new RegExp('('+term+')', 'gi'), '<mark>$1</mark>');
+                secondElem.innerHTML = (secondElem.dataset.original || secondElem.textContent)
+                                      .replace(new RegExp('('+term+')', 'gi'), '<mark>$1</mark>');
+            } else {
+                firstElem.innerHTML = firstElem.dataset.original || firstElem.innerHTML;
+                secondElem.innerHTML = secondElem.dataset.original || secondElem.innerHTML;
+            }
+        } else {
+            items[i].style.display = 'none';
+        }
+    }
+    document.getElementById('searchCount').innerText = visibleCount + " found";
+}
+</script>
+
+</body>
+</html>

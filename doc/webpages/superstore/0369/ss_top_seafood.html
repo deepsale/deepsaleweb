@@ -159,6 +159,7 @@
       height: auto;
       opacity: 0;
       animation: fadeIn 1.5s ease forwards;
+      cursor: pointer;
     }
     @keyframes fadeIn {
       from { opacity: 0; }
@@ -285,6 +286,33 @@
       opacity: 0;
       z-index: 1;
     }
+    /* New big picture view overlay */
+    .big-picture-view {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(255, 255, 255, 0.95);
+      display: none;
+      justify-content: center;
+      align-items: center;
+      z-index: 3;
+    }
+    /* Modified image to fill the overlay entirely */
+    .big-picture-view img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .close-bigpic {
+      position: absolute;
+      top: 10px;
+      right: 10px;
+      font-size: 24px;
+      cursor: pointer;
+      z-index: 4;
+    }
     .item-name {
       font-size: 14px;
       margin-bottom: 6px;
@@ -341,8 +369,347 @@
             el.style.opacity = '0';
             el.style.display = 'none';
         });
-        window.priceHistoryData = {"20699832_EA": {"1mon": [{"date": "02.12", "now_price": 2.99, "was_price": 3.99}, {"date": "03.05", "now_price": 2.99, "was_price": 3.99}], "1yr": [{"date": "02.12", "now_price": 2.99, "was_price": 3.99}, {"date": "03.05", "now_price": 2.99, "was_price": 3.99}]}, "20720065_KG": {"1mon": [{"date": "02.19", "now_price": 20.47, "was_price": 29.79}, {"date": "03.05", "now_price": 20.47, "was_price": 29.79}], "1yr": [{"date": "02.19", "now_price": 20.47, "was_price": 29.79}, {"date": "03.05", "now_price": 20.47, "was_price": 29.79}]}, "20749798_EA": {"1mon": [{"date": "02.12", "now_price": 2.99, "was_price": 3.99}, {"date": "03.05", "now_price": 2.99, "was_price": 3.99}], "1yr": [{"date": "02.12", "now_price": 2.99, "was_price": 3.99}, {"date": "03.05", "now_price": 2.99, "was_price": 3.99}]}, "20749901_EA": {"1mon": [{"date": "02.12", "now_price": 2.99, "was_price": 3.99}, {"date": "03.05", "now_price": 2.99, "was_price": 3.99}], "1yr": [{"date": "02.12", "now_price": 2.99, "was_price": 3.99}, {"date": "03.05", "now_price": 2.99, "was_price": 3.99}]}, "20750012_EA": {"1mon": [{"date": "02.12", "now_price": 2.99, "was_price": 3.99}, {"date": "03.05", "now_price": 2.99, "was_price": 3.99}], "1yr": [{"date": "02.12", "now_price": 2.99, "was_price": 3.99}, {"date": "03.05", "now_price": 2.99, "was_price": 3.99}]}, "20852143_KG": {"1mon": [{"date": "02.19", "now_price": 8.79, "was_price": 11.95}, {"date": "03.05", "now_price": 8.79, "was_price": 11.95}], "1yr": [{"date": "02.19", "now_price": 8.79, "was_price": 11.95}, {"date": "03.05", "now_price": 8.79, "was_price": 11.95}]}, "21043887_EA": {"1mon": [{"date": "02.05", "now_price": 5.99, "was_price": 9.49}, {"date": "03.12", "now_price": 7.0, "was_price": 9.49}], "1yr": [{"date": "02.05", "now_price": 5.99, "was_price": 9.49}, {"date": "03.12", "now_price": 7.0, "was_price": 9.49}]}, "21108887_EA": {"1mon": [{"date": "02.05", "now_price": 9.99, "was_price": 10.99}, {"date": "03.05", "now_price": 9.99, "was_price": 10.99}], "1yr": [{"date": "02.05", "now_price": 9.99, "was_price": 10.99}, {"date": "03.05", "now_price": 9.99, "was_price": 10.99}]}, "21211819_EA": {"1mon": [{"date": "02.05", "now_price": 9.99, "was_price": 13.49}, {"date": "03.05", "now_price": 9.99, "was_price": 13.49}], "1yr": [{"date": "02.05", "now_price": 9.99, "was_price": 13.49}, {"date": "03.05", "now_price": 9.99, "was_price": 13.49}]}};
+        window.priceHistoryData = {"20720065_KG": {"1mon": [{"date": "02.19", "now_price": 20.47, "was_price": 29.79}, {"date": "03.05", "now_price": 20.47, "was_price": 29.79}, {"date": "03.05", "now_price": 18.9, "was_price": 27.49}, {"date": "03.09", "now_price": 18.9, "was_price": 27.49}], "1yr": [{"date": "02.19", "now_price": 20.47, "was_price": 29.79}, {"date": "03.05", "now_price": 20.47, "was_price": 29.79}, {"date": "03.05", "now_price": 18.9, "was_price": 27.49}, {"date": "03.09", "now_price": 18.9, "was_price": 27.49}]}, "20789931_EA": {"1mon": [{"date": "02.12", "now_price": 7.99, "was_price": 10.0}, {"date": "03.12", "now_price": 7.99, "was_price": 10.0}], "1yr": [{"date": "02.12", "now_price": 7.99, "was_price": 10.0}, {"date": "03.12", "now_price": 7.99, "was_price": 10.0}]}, "20791381_EA": {"1mon": [{"date": "02.12", "now_price": 7.99, "was_price": 10.0}, {"date": "03.12", "now_price": 7.99, "was_price": 10.0}], "1yr": [{"date": "02.12", "now_price": 7.99, "was_price": 10.0}, {"date": "03.12", "now_price": 7.99, "was_price": 10.0}]}, "20807664_EA": {"1mon": [{"date": "03.12", "now_price": 14.99, "was_price": 16.99}], "1yr": [{"date": "03.12", "now_price": 14.99, "was_price": 16.99}]}, "20810357_EA": {"1mon": [{"date": "03.12", "now_price": 14.99, "was_price": 16.99}], "1yr": [{"date": "03.12", "now_price": 14.99, "was_price": 16.99}]}, "20852143_KG": {"1mon": [{"date": "02.19", "now_price": 8.79, "was_price": 11.95}, {"date": "03.05", "now_price": 8.79, "was_price": 11.95}, {"date": "03.05", "now_price": 8.43, "was_price": 11.46}, {"date": "03.09", "now_price": 8.43, "was_price": 11.46}], "1yr": [{"date": "02.19", "now_price": 8.79, "was_price": 11.95}, {"date": "03.05", "now_price": 8.79, "was_price": 11.95}, {"date": "03.05", "now_price": 8.43, "was_price": 11.46}, {"date": "03.09", "now_price": 8.43, "was_price": 11.46}]}, "20951269_KG": {"1mon": [{"date": "02.12", "now_price": 5.05, "was_price": 7.9}, {"date": "02.19", "now_price": 6.32, "was_price": 7.9}, {"date": "03.12", "now_price": 5.92, "was_price": 9.25}], "1yr": [{"date": "02.05", "now_price": 6.32, "was_price": 7.9}, {"date": "02.12", "now_price": 5.05, "was_price": 7.9}, {"date": "02.19", "now_price": 6.32, "was_price": 7.9}, {"date": "03.12", "now_price": 5.92, "was_price": 9.25}]}, "20985188_KG": {"1mon": [{"date": "02.12", "now_price": 6.59, "was_price": 8.99}, {"date": "02.26", "now_price": 5.39, "was_price": 8.99}, {"date": "03.12", "now_price": 6.74, "was_price": 9.19}], "1yr": [{"date": "02.12", "now_price": 6.59, "was_price": 8.99}, {"date": "02.26", "now_price": 5.39, "was_price": 8.99}, {"date": "03.12", "now_price": 6.74, "was_price": 9.19}]}, "21043887_EA": {"1mon": [{"date": "03.12", "now_price": 7.0, "was_price": 9.49}], "1yr": [{"date": "02.05", "now_price": 5.99, "was_price": 9.49}, {"date": "03.12", "now_price": 7.0, "was_price": 9.49}]}, "21093213_KG": {"1mon": [{"date": "02.12", "now_price": 5.6, "was_price": 8.76}, {"date": "02.19", "now_price": 7.0, "was_price": 8.76}, {"date": "03.12", "now_price": 5.6, "was_price": 8.76}], "1yr": [{"date": "02.05", "now_price": 7.0, "was_price": 8.76}, {"date": "02.12", "now_price": 5.6, "was_price": 8.76}, {"date": "02.19", "now_price": 7.0, "was_price": 8.76}, {"date": "03.12", "now_price": 5.6, "was_price": 8.76}]}, "21562192_EA": {"1mon": [{"date": "03.12", "now_price": 9.99, "was_price": 10.99}], "1yr": [{"date": "03.12", "now_price": 9.99, "was_price": 10.99}]}};
     });
+
+    // Opens the big picture overlay when a product image is clicked.
+    function openBigPicture(imgElement) {
+        var container = imgElement.closest('.item-container');
+        var bigPicView = container.querySelector('.big-picture-view');
+        var bigPicImg = bigPicView.querySelector('img');
+        bigPicImg.src = imgElement.src;
+        bigPicView.style.display = 'flex';
+    }
+
+    // Closes the big picture overlay.
+    function closeBigPicture(closeElement) {
+        var container = closeElement.closest('.item-container');
+        var bigPicView = container.querySelector('.big-picture-view');
+        bigPicView.style.display = 'none';
+    }
+
+    /**
+     * "Detail" button: show discount (detail) view and hide chart view.
+     * Also closes any open big picture.
+     */
+    function switchToDetail(btn) {
+        var container = btn.closest('.item-container');
+        // Close big picture view if open.
+        var bigPicView = container.querySelector('.big-picture-view');
+        if (bigPicView) { bigPicView.style.display = 'none'; }
+
+        container.querySelectorAll('.vertical-switch-button').forEach(function(b) {
+            b.classList.remove('selected');
+        });
+        btn.classList.add('selected');
+
+        var toggleSwitch = container.querySelector('.toggle-switch');
+        toggleSwitch.classList.add('disabled');
+        var toggleInput = container.querySelector('.toggle-input');
+        toggleInput.checked = false;
+        var toggleLabel = toggleSwitch.querySelector('.toggle-text');
+        toggleLabel.textContent = "1 Yr";
+
+        var detailView = container.querySelector('.detail-view');
+        var chartView = container.querySelector('.chart-view');
+        detailView.style.opacity = '1';
+        detailView.style.display = 'block';
+        chartView.style.opacity = '0';
+        chartView.style.display = 'none';
+
+        var productId = container.getAttribute('data-product-id');
+        if (window.chartInstances && window.chartInstances[productId]) {
+            window.chartInstances[productId].destroy();
+            delete window.chartInstances[productId];
+        }
+    }
+
+    /**
+     * Toggle switch handler:
+     * When toggled, hide discount view and show chart view immediately.
+     * Also closes any open big picture.
+     * If checked, render a 1 Yr line chart; if unchecked, render a 1 Mon stacked bar chart.
+     */
+    function toggleMonYr(checkbox) {
+        var container = checkbox.closest('.item-container');
+        // Close big picture view if open.
+        var bigPicView = container.querySelector('.big-picture-view');
+        if (bigPicView) { bigPicView.style.display = 'none'; }
+
+        var toggleSwitch = container.querySelector('.toggle-switch');
+        if (toggleSwitch.classList.contains('disabled')) {
+            toggleSwitch.classList.remove('disabled');
+        }
+        var detailBtn = container.querySelector('[data-type="detail"]');
+        detailBtn.classList.remove('selected');
+
+        var detailView = container.querySelector('.detail-view');
+        var chartView = container.querySelector('.chart-view');
+        detailView.style.opacity = '0';
+        detailView.style.display = 'none';
+        chartView.style.opacity = '1';
+        chartView.style.display = 'block';
+
+        var productId = container.getAttribute('data-product-id');
+        var toggleLabel = checkbox.nextElementSibling.querySelector('.toggle-text');
+        var data1mon = window.priceHistoryData[productId]["1mon"] || [];
+        var data1yr  = window.priceHistoryData[productId]["1yr"]  || [];
+
+        if (window.chartInstances && window.chartInstances[productId]) {
+            window.chartInstances[productId].destroy();
+            delete window.chartInstances[productId];
+        }
+
+        if (checkbox.checked) {
+            toggleLabel.textContent = "Yr.";
+            var filtered = data1yr.filter(function(d) {
+                return d.was_price > 0 && d.now_price > 0;
+            });
+            renderLineChart(productId, filtered);
+        } else {
+            toggleLabel.textContent = "Mon";
+            var filtered = data1mon.filter(function(d) {
+                return d.was_price > 0 && d.now_price > 0;
+            });
+            renderStackedBarChart(productId, filtered);
+        }
+    }
+
+    /**
+     * Renders a stacked bar chart (1 Mon data) using Chart.js.
+     * Legend is disabled.
+     */
+    function renderStackedBarChart(productId, data) {
+      const ctx = document.getElementById('canvas-' + productId).getContext('2d');
+      if (!data || data.length === 0) {
+        ctx.font = "14px Arial";
+        ctx.fillText("No 1 Mon data", 10, 50);
+        return;
+      }
+      let maxWas = 0;
+      data.forEach(function(d) {
+        if (d.was_price > maxWas) { maxWas = d.was_price; }
+      });
+      const yAxisMax = maxWas * 1.1;
+      window.chartInstances = window.chartInstances || {};
+      window.chartInstances[productId] = new Chart(ctx, {
+        type: 'bar',
+        data: {
+          labels: data.map(function(d) { return d.date; }),
+          datasets: [
+            {
+              label: 'Now Price',
+              data: data.map(function(d) { return d.now_price; }),
+              backgroundColor: '#009900',
+              stack: 'Stack 0',
+              datalabels: {
+                formatter: function(value, context) {
+                  return data[context.dataIndex].now_price.toFixed(2);
+                },
+                color: '#000',
+                font: { size: 10, weight: 'normal' },
+                anchor: 'end',
+                align: 'end',
+                offset: -4
+              }
+            },
+            {
+              label: 'Was Price',
+              data: data.map(function(d) { return d.was_price - d.now_price; }),
+              backgroundColor: '#FF9900',
+              stack: 'Stack 0',
+              datalabels: {
+                formatter: function(value, context) {
+                  return data[context.dataIndex].was_price.toFixed(2);
+                },
+                color: '#000',
+                font: { size: 10, weight: 'normal' },
+                anchor: 'end',
+                align: 'end',
+                offset: 2
+              }
+            },
+            {
+              type: 'line',
+              label: 'Now Price Trend',
+              data: data.map(function(d) { return d.now_price; }),
+              borderColor: '#000',
+              borderWidth: 1,
+              fill: false,
+              tension: 0.1,
+              pointBackgroundColor: '#000',
+              order: 99,
+              z: 9999,
+              yAxisID: 'yLine',
+              datalabels: { display: false }
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            axisTitleBackgroundPlugin: { backgroundColor: '#ddd' },
+            datalabels: { clip: false },
+            legend: { display: false }
+          },
+          scales: {
+            x: {
+              stacked: true,
+              title: { display: false, text: 'Date' }
+            },
+            y: {
+              stacked: true,
+              beginAtZero: true,
+              title: { display: false, text: 'Price' },
+              max: yAxisMax
+            },
+            yLine: {
+              beginAtZero: true,
+              display: false,
+              min: 0,
+              max: yAxisMax
+            }
+          }
+        }
+      });
+    }
+
+    /**
+     * Renders a two-line chart (1 Yr data) using Chart.js.
+     * Legend is disabled.
+     */
+    function renderLineChart(productId, data) {
+      const ctx = document.getElementById('canvas-' + productId).getContext('2d');
+      if (!data || data.length === 0) {
+        ctx.font = "14px Arial";
+        ctx.fillText("No 1 Yr data", 10, 50);
+        return;
+      }
+      let maxPrice = 0;
+      data.forEach(function(d) {
+        if (d.was_price > maxPrice) { maxPrice = d.was_price; }
+        if (d.now_price > maxPrice) { maxPrice = d.now_price; }
+      });
+      const yAxisMax = maxPrice * 1.2;
+      window.chartInstances = window.chartInstances || {};
+      window.chartInstances[productId] = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: data.map(function(d) { return d.date; }),
+          datasets: [
+            {
+              label: 'Was Price',
+              data: data.map(function(d) { return d.was_price; }),
+              borderColor: '#0077cc',
+              backgroundColor: '#0077cc',
+              fill: false,
+              tension: 0.1,
+              datalabels: {
+                color: '#0077cc',
+                anchor: 'end',
+                align: 'end',
+                offset: 4,
+                font: { size: 10, weight: 'normal' },
+                formatter: function(value) { return value.toFixed(2); }
+              }
+            },
+            {
+              label: 'Now Price',
+              data: data.map(function(d) { return d.now_price; }),
+              borderColor: '#009900',
+              backgroundColor: '#009900',
+              fill: false,
+              tension: 0.1,
+              datalabels: {
+                color: '#009900',
+                anchor: 'start',
+                align: 'start',
+                offset: 4,
+                font: { size: 10, weight: 'normal' },
+                formatter: function(value) { return value.toFixed(2); }
+              }
+            }
+          ]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            datalabels: { clip: false },
+            legend: { display: false }
+          },
+          scales: {
+            x: { title: { display: false, text: 'Date' } },
+            y: { title: { display: false, text: 'Price' }, beginAtZero: true, max: yAxisMax }
+          }
+        }
+      });
+    }
+
+    function showSearchBar() {
+        var header = document.querySelector('.header-container');
+        header.style.display = 'none';
+        var searchBar = document.getElementById('searchBarContainer');
+        searchBar.style.display = 'flex';
+        setTimeout(function() {
+            searchBar.style.opacity = '1';
+        }, 10);
+        document.getElementById('searchInput').focus();
+    }
+
+    function hideSearchBar() {
+        var searchBar = document.getElementById('searchBarContainer');
+        var header = document.querySelector('.header-container');
+        var searchInput = document.getElementById('searchInput');
+        searchInput.value = '';
+        var firstElems = document.getElementsByClassName('first-word');
+        var secondElems = document.getElementsByClassName('product-name-text');
+        for (var i = 0; i < firstElems.length; i++) {
+            firstElems[i].innerHTML = firstElems[i].dataset.original || firstElems[i].innerHTML;
+        }
+        for (var i = 0; i < secondElems.length; i++) {
+            secondElems[i].innerHTML = secondElems[i].dataset.original || secondElems[i].innerHTML;
+        }
+        var items = document.getElementsByClassName('item-container');
+        for (var i = 0; i < items.length; i++) {
+            items[i].style.display = '';
+        }
+        document.getElementById('searchCount').innerText = '';
+        searchBar.style.opacity = '0';
+        setTimeout(function() {
+            searchBar.style.display = 'none';
+            header.style.display = 'flex';
+        }, 500);
+    }
+
+    function inPageSearch() {
+        var input = document.getElementById('searchInput').value.trim();
+        var term = input.toLowerCase();
+        var items = document.getElementsByClassName('item-container');
+        var visibleCount = 0;
+        for (var i = 0; i < items.length; i++) {
+            var firstElem = items[i].querySelector('.first-word');
+            var secondElem = items[i].querySelector('.product-name-text');
+            var fullName = (firstElem.textContent + ' ' + secondElem.textContent).toLowerCase();
+            if (term === '' || fullName.indexOf(term) > -1) {
+                items[i].style.display = '';
+                visibleCount++;
+                if (term !== '') {
+                    firstElem.innerHTML = (firstElem.dataset.original || firstElem.textContent)
+                                          .replace(new RegExp('('+term+')', 'gi'), '<mark>$1</mark>');
+                    secondElem.innerHTML = (secondElem.dataset.original || secondElem.textContent)
+                                          .replace(new RegExp('('+term+')', 'gi'), '<mark>$1</mark>');
+                } else {
+                    firstElem.innerHTML = firstElem.dataset.original || firstElem.innerHTML;
+                    secondElem.innerHTML = secondElem.dataset.original || secondElem.innerHTML;
+                }
+            } else {
+                items[i].style.display = 'none';
+            }
+        }
+        document.getElementById('searchCount').innerText = visibleCount + " found";
+    }
   </script>
 
 </head>
@@ -354,7 +721,7 @@
     </button>
     <div class='page-title'>ss_seafood</div>
   </div>
-  <div class='creation-time'>Created on: 2025-03-03 00:19:29</div>
+  <div class='creation-time'>Created on: 2025-03-08 21:19:15</div>
 </div>
 <hr class='divider'>
 <div class='header-spacer'></div>
@@ -365,10 +732,96 @@
   <button id='closeSearchButton' onclick='hideSearchBar()'>×</button>
 </div>
 
+<div class='item-container' data-product-id='21093213_KG'>
+  <div class='left-side'>
+  <div class='item-image'>
+    <img src='https://assets.shop.loblaws.ca/products/21093213/b3/en/front/21093213_front_a06_@2.png' alt='Scallops, Frozen Tray Pack 80/120' onclick='openBigPicture(this)' />
+  </div>
+  <!-- "Detail" button (selected by default) -->
+  <button class='vertical-switch-button selected fade-on-load' data-type='detail' onclick='switchToDetail(this)'>On Sale</button>
+  <!-- Toggle switch (disabled by default, label "1 Yr") -->
+  <div class='toggle-switch disabled' data-product-id='21093213_KG'>
+    <input type='checkbox' class='toggle-input' id='toggle-21093213_KG' onchange='toggleMonYr(this)' ontouchend='toggleMonYr(this)'>
+    <label class='toggle-label' for='toggle-21093213_KG'>
+      <span class='toggle-circle'></span>
+      <span class='toggle-text'>Yr.</span>
+    </label>
+  </div>
+</div>
+
+  <div class='right-side'>
+  <div class='view-container'>
+    <div class='detail-view' id='detail-21093213_KG'>
+      <div class='item-name'>
+  <span class='item-number'>#1</span>
+  <span class='first-word' data-original='Scallops,'>Scallops,</span>
+  <span class='product-name-text' data-original='Frozen Tray Pack 80/120'>Frozen Tray Pack 80/120</span>
+</div>
+<div class='expire-on'>Expire On: 2025-03-12</div>
+<div class='was-price'>WAS: <span class='was-price'>$ 8.76</span></div>
+<div class='now-price'>NOW: $ 5.60</div>
+<div class='discount-badge' style='border: 2px solid red; border-radius: 50%; padding: 5px; display: inline-block;'>36.1% OFF</div>
+
+    </div>
+    <div class='chart-view' id='chart-21093213_KG'>
+      <canvas id='canvas-21093213_KG' width='400' height='200'></canvas>
+    </div>
+    <!-- Big picture view overlay -->
+    <div class='big-picture-view' id='bigpic-21093213_KG'>
+      <span class='close-bigpic' onclick='closeBigPicture(this)'>×</span>
+      <img src='' alt='Big Picture' />
+    </div>
+  </div>
+</div>
+
+</div>
+<div class='item-container' data-product-id='20951269_KG'>
+  <div class='left-side'>
+  <div class='item-image'>
+    <img src='https://assets.shop.loblaws.ca/products/20951269/b3/en/front/20951269_front_a06_@2.png' alt='Bulk Frozen Scallops, 80/120 CT' onclick='openBigPicture(this)' />
+  </div>
+  <!-- "Detail" button (selected by default) -->
+  <button class='vertical-switch-button selected fade-on-load' data-type='detail' onclick='switchToDetail(this)'>On Sale</button>
+  <!-- Toggle switch (disabled by default, label "1 Yr") -->
+  <div class='toggle-switch disabled' data-product-id='20951269_KG'>
+    <input type='checkbox' class='toggle-input' id='toggle-20951269_KG' onchange='toggleMonYr(this)' ontouchend='toggleMonYr(this)'>
+    <label class='toggle-label' for='toggle-20951269_KG'>
+      <span class='toggle-circle'></span>
+      <span class='toggle-text'>Yr.</span>
+    </label>
+  </div>
+</div>
+
+  <div class='right-side'>
+  <div class='view-container'>
+    <div class='detail-view' id='detail-20951269_KG'>
+      <div class='item-name'>
+  <span class='item-number'>#2</span>
+  <span class='first-word' data-original='Bulk'>Bulk</span>
+  <span class='product-name-text' data-original='Frozen Scallops, 80/120 CT'>Frozen Scallops, 80/120 CT</span>
+</div>
+<div class='expire-on'>Expire On: 2025-03-12</div>
+<div class='was-price'>WAS: <span class='was-price'>$ 9.25</span></div>
+<div class='now-price'>NOW: $ 5.92</div>
+<div class='discount-badge' style='border: 2px solid red; border-radius: 50%; padding: 5px; display: inline-block;'>36.0% OFF</div>
+
+    </div>
+    <div class='chart-view' id='chart-20951269_KG'>
+      <canvas id='canvas-20951269_KG' width='400' height='200'></canvas>
+    </div>
+    <!-- Big picture view overlay -->
+    <div class='big-picture-view' id='bigpic-20951269_KG'>
+      <span class='close-bigpic' onclick='closeBigPicture(this)'>×</span>
+      <img src='' alt='Big Picture' />
+    </div>
+  </div>
+</div>
+
+</div>
 <div class='item-container' data-product-id='20720065_KG'>
   <div class='left-side'>
   <div class='item-image'>
-    <img src='https://assets.shop.loblaws.ca/products/20720065/b1/en/beauty/20720065_beauty_a01_@2.png' alt='Fresh Atlantic Salmon Fillets, Skin On, Packaged, Club Size' />
+    <img src='https://assets.shop.loblaws.ca/products/20720065/b3/en/beauty/20720065_beauty_a06_@2.png' alt='Fresh Atlantic Salmon Fillets, Skin On, Packaged, Club Size' onclick='openBigPicture(this)' />
   </div>
   <!-- "Detail" button (selected by default) -->
   <button class='vertical-switch-button selected fade-on-load' data-type='detail' onclick='switchToDetail(this)'>On Sale</button>
@@ -386,18 +839,66 @@
   <div class='view-container'>
     <div class='detail-view' id='detail-20720065_KG'>
       <div class='item-name'>
-  <span class='item-number'>#1</span>
+  <span class='item-number'>#3</span>
   <span class='first-word' data-original='Fresh'>Fresh</span>
   <span class='product-name-text' data-original='Atlantic Salmon Fillets, Skin On, Packaged, Club Size'>Atlantic Salmon Fillets, Skin On, Packaged, Club Size</span>
 </div>
-<div class='expire-on'>Expire On: 2025-03-05</div>
-<div class='was-price'>WAS: <span class='was-price'>$ 29.79</span></div>
-<div class='now-price'>NOW: $ 20.47</div>
-<div class='discount-badge' style='border: 2px solid red; border-radius: 50%; padding: 5px; display: inline-block;'>31.3% OFF</div>
+<div class='expire-on'>Expire On: 2025-03-09</div>
+<div class='was-price'>WAS: <span class='was-price'>$ 27.49</span></div>
+<div class='now-price'>NOW: $ 18.90</div>
+<div class='discount-badge' style='border: 2px solid red; border-radius: 50%; padding: 5px; display: inline-block;'>31.2% OFF</div>
 
     </div>
     <div class='chart-view' id='chart-20720065_KG'>
       <canvas id='canvas-20720065_KG' width='400' height='200'></canvas>
+    </div>
+    <!-- Big picture view overlay -->
+    <div class='big-picture-view' id='bigpic-20720065_KG'>
+      <span class='close-bigpic' onclick='closeBigPicture(this)'>×</span>
+      <img src='' alt='Big Picture' />
+    </div>
+  </div>
+</div>
+
+</div>
+<div class='item-container' data-product-id='20985188_KG'>
+  <div class='left-side'>
+  <div class='item-image'>
+    <img src='https://assets.shop.loblaws.ca/products/20985188/b3/en/front/20985188_front_a06_@2.png' alt='Haddock Fillets, Previously Frozen' onclick='openBigPicture(this)' />
+  </div>
+  <!-- "Detail" button (selected by default) -->
+  <button class='vertical-switch-button selected fade-on-load' data-type='detail' onclick='switchToDetail(this)'>On Sale</button>
+  <!-- Toggle switch (disabled by default, label "1 Yr") -->
+  <div class='toggle-switch disabled' data-product-id='20985188_KG'>
+    <input type='checkbox' class='toggle-input' id='toggle-20985188_KG' onchange='toggleMonYr(this)' ontouchend='toggleMonYr(this)'>
+    <label class='toggle-label' for='toggle-20985188_KG'>
+      <span class='toggle-circle'></span>
+      <span class='toggle-text'>Yr.</span>
+    </label>
+  </div>
+</div>
+
+  <div class='right-side'>
+  <div class='view-container'>
+    <div class='detail-view' id='detail-20985188_KG'>
+      <div class='item-name'>
+  <span class='item-number'>#4</span>
+  <span class='first-word' data-original='Haddock'>Haddock</span>
+  <span class='product-name-text' data-original='Fillets, Previously Frozen'>Fillets, Previously Frozen</span>
+</div>
+<div class='expire-on'>Expire On: 2025-03-12</div>
+<div class='was-price'>WAS: <span class='was-price'>$ 9.19</span></div>
+<div class='now-price'>NOW: $ 6.74</div>
+<div class='discount-badge' style='border: 2px solid red; border-radius: 50%; padding: 5px; display: inline-block;'>26.7% OFF</div>
+
+    </div>
+    <div class='chart-view' id='chart-20985188_KG'>
+      <canvas id='canvas-20985188_KG' width='400' height='200'></canvas>
+    </div>
+    <!-- Big picture view overlay -->
+    <div class='big-picture-view' id='bigpic-20985188_KG'>
+      <span class='close-bigpic' onclick='closeBigPicture(this)'>×</span>
+      <img src='' alt='Big Picture' />
     </div>
   </div>
 </div>
@@ -406,7 +907,7 @@
 <div class='item-container' data-product-id='20852143_KG'>
   <div class='left-side'>
   <div class='item-image'>
-    <img src='https://assets.shop.loblaws.ca/products/20852143/b1/en/angle/20852143_angle_a01_@2.png' alt='Fresh Atlantic Salmon Fillets, Skin On, Packaged' />
+    <img src='https://assets.shop.loblaws.ca/products/20852143/b3/en/angle/20852143_angle_a06_@2.png' alt='Fresh Atlantic Salmon Fillets, Skin On, Packaged' onclick='openBigPicture(this)' />
   </div>
   <!-- "Detail" button (selected by default) -->
   <button class='vertical-switch-button selected fade-on-load' data-type='detail' onclick='switchToDetail(this)'>On Sale</button>
@@ -424,18 +925,23 @@
   <div class='view-container'>
     <div class='detail-view' id='detail-20852143_KG'>
       <div class='item-name'>
-  <span class='item-number'>#2</span>
+  <span class='item-number'>#5</span>
   <span class='first-word' data-original='Fresh'>Fresh</span>
   <span class='product-name-text' data-original='Atlantic Salmon Fillets, Skin On, Packaged'>Atlantic Salmon Fillets, Skin On, Packaged</span>
 </div>
-<div class='expire-on'>Expire On: 2025-03-05</div>
-<div class='was-price'>WAS: <span class='was-price'>$ 11.95</span></div>
-<div class='now-price'>NOW: $ 8.79</div>
+<div class='expire-on'>Expire On: 2025-03-09</div>
+<div class='was-price'>WAS: <span class='was-price'>$ 11.46</span></div>
+<div class='now-price'>NOW: $ 8.43</div>
 <div class='discount-badge' style='border: 2px solid red; border-radius: 50%; padding: 5px; display: inline-block;'>26.4% OFF</div>
 
     </div>
     <div class='chart-view' id='chart-20852143_KG'>
       <canvas id='canvas-20852143_KG' width='400' height='200'></canvas>
+    </div>
+    <!-- Big picture view overlay -->
+    <div class='big-picture-view' id='bigpic-20852143_KG'>
+      <span class='close-bigpic' onclick='closeBigPicture(this)'>×</span>
+      <img src='' alt='Big Picture' />
     </div>
   </div>
 </div>
@@ -444,7 +950,7 @@
 <div class='item-container' data-product-id='21043887_EA'>
   <div class='left-side'>
   <div class='item-image'>
-    <img src='https://assets.shop.loblaws.ca/products/21043887/b1/en/angle/21043887_angle_a01_@2.png' alt='Pacific White Shrimp Raw 16-20/LB' />
+    <img src='https://assets.shop.loblaws.ca/products/21043887/b3/en/angle/21043887_angle_a06_@2.png' alt='Pacific White Shrimp Raw 16-20/LB' onclick='openBigPicture(this)' />
   </div>
   <!-- "Detail" button (selected by default) -->
   <button class='vertical-switch-button selected fade-on-load' data-type='detail' onclick='switchToDetail(this)'>On Sale</button>
@@ -462,7 +968,7 @@
   <div class='view-container'>
     <div class='detail-view' id='detail-21043887_EA'>
       <div class='item-name'>
-  <span class='item-number'>#3</span>
+  <span class='item-number'>#6</span>
   <span class='first-word' data-original='Pacific'>Pacific</span>
   <span class='product-name-text' data-original='White Shrimp Raw 16-20/LB'>White Shrimp Raw 16-20/LB</span>
 </div>
@@ -475,21 +981,26 @@
     <div class='chart-view' id='chart-21043887_EA'>
       <canvas id='canvas-21043887_EA' width='400' height='200'></canvas>
     </div>
+    <!-- Big picture view overlay -->
+    <div class='big-picture-view' id='bigpic-21043887_EA'>
+      <span class='close-bigpic' onclick='closeBigPicture(this)'>×</span>
+      <img src='' alt='Big Picture' />
+    </div>
   </div>
 </div>
 
 </div>
-<div class='item-container' data-product-id='21211819_EA'>
+<div class='item-container' data-product-id='20791381_EA'>
   <div class='left-side'>
   <div class='item-image'>
-    <img src='https://assets.shop.loblaws.ca/products/21211819/b1/en/front/21211819_front_a01_@2.png' alt='Wild Yellowfin Tuna Skinless Boneless Steaks, Sustainably Sourced 280g' />
+    <img src='https://assets.shop.loblaws.ca/products/20791381/b3/en/angle/20791381_angle_a06_@2.png' alt='Pacific White Shrimp Cooked Peeled' onclick='openBigPicture(this)' />
   </div>
   <!-- "Detail" button (selected by default) -->
   <button class='vertical-switch-button selected fade-on-load' data-type='detail' onclick='switchToDetail(this)'>On Sale</button>
   <!-- Toggle switch (disabled by default, label "1 Yr") -->
-  <div class='toggle-switch disabled' data-product-id='21211819_EA'>
-    <input type='checkbox' class='toggle-input' id='toggle-21211819_EA' onchange='toggleMonYr(this)' ontouchend='toggleMonYr(this)'>
-    <label class='toggle-label' for='toggle-21211819_EA'>
+  <div class='toggle-switch disabled' data-product-id='20791381_EA'>
+    <input type='checkbox' class='toggle-input' id='toggle-20791381_EA' onchange='toggleMonYr(this)' ontouchend='toggleMonYr(this)'>
+    <label class='toggle-label' for='toggle-20791381_EA'>
       <span class='toggle-circle'></span>
       <span class='toggle-text'>Yr.</span>
     </label>
@@ -498,150 +1009,41 @@
 
   <div class='right-side'>
   <div class='view-container'>
-    <div class='detail-view' id='detail-21211819_EA'>
-      <div class='item-name'>
-  <span class='item-number'>#4</span>
-  <span class='first-word' data-original='Wild'>Wild</span>
-  <span class='product-name-text' data-original='Yellowfin Tuna Skinless Boneless Steaks, Sustainably Sourced 280g'>Yellowfin Tuna Skinless Boneless Steaks, Sustainably Sourced 280g</span>
-</div>
-<div class='expire-on'>Expire On: 2025-03-05</div>
-<div class='was-price'>WAS: <span class='was-price'>$ 13.49</span></div>
-<div class='now-price'>NOW: $ 9.99</div>
-<div class='discount-badge' style='border: 2px solid red; border-radius: 50%; padding: 5px; display: inline-block;'>25.9% OFF</div>
-
-    </div>
-    <div class='chart-view' id='chart-21211819_EA'>
-      <canvas id='canvas-21211819_EA' width='400' height='200'></canvas>
-    </div>
-  </div>
-</div>
-
-</div>
-<div class='item-container' data-product-id='20750012_EA'>
-  <div class='left-side'>
-  <div class='item-image'>
-    <img src='https://assets.shop.loblaws.ca/products/20750012/b1/en/angle/20750012_angle_a01_@2.png' alt='Crab Flavoured Wild Alaska Pollock Chunks' />
-  </div>
-  <!-- "Detail" button (selected by default) -->
-  <button class='vertical-switch-button selected fade-on-load' data-type='detail' onclick='switchToDetail(this)'>On Sale</button>
-  <!-- Toggle switch (disabled by default, label "1 Yr") -->
-  <div class='toggle-switch disabled' data-product-id='20750012_EA'>
-    <input type='checkbox' class='toggle-input' id='toggle-20750012_EA' onchange='toggleMonYr(this)' ontouchend='toggleMonYr(this)'>
-    <label class='toggle-label' for='toggle-20750012_EA'>
-      <span class='toggle-circle'></span>
-      <span class='toggle-text'>Yr.</span>
-    </label>
-  </div>
-</div>
-
-  <div class='right-side'>
-  <div class='view-container'>
-    <div class='detail-view' id='detail-20750012_EA'>
-      <div class='item-name'>
-  <span class='item-number'>#5</span>
-  <span class='first-word' data-original='Crab'>Crab</span>
-  <span class='product-name-text' data-original='Flavoured Wild Alaska Pollock Chunks'>Flavoured Wild Alaska Pollock Chunks</span>
-</div>
-<div class='expire-on'>Expire On: 2025-03-05</div>
-<div class='was-price'>WAS: <span class='was-price'>$ 3.99</span></div>
-<div class='now-price'>NOW: $ 2.99</div>
-<div class='discount-badge' style='border: 2px solid red; border-radius: 50%; padding: 5px; display: inline-block;'>25.1% OFF</div>
-
-    </div>
-    <div class='chart-view' id='chart-20750012_EA'>
-      <canvas id='canvas-20750012_EA' width='400' height='200'></canvas>
-    </div>
-  </div>
-</div>
-
-</div>
-<div class='item-container' data-product-id='20749901_EA'>
-  <div class='left-side'>
-  <div class='item-image'>
-    <img src='https://assets.shop.loblaws.ca/products/20749901/b1/en/front/20749901_front_a01_@2.png' alt='Lobster Flavoured Wild Alaska Pollock Chunks' />
-  </div>
-  <!-- "Detail" button (selected by default) -->
-  <button class='vertical-switch-button selected fade-on-load' data-type='detail' onclick='switchToDetail(this)'>On Sale</button>
-  <!-- Toggle switch (disabled by default, label "1 Yr") -->
-  <div class='toggle-switch disabled' data-product-id='20749901_EA'>
-    <input type='checkbox' class='toggle-input' id='toggle-20749901_EA' onchange='toggleMonYr(this)' ontouchend='toggleMonYr(this)'>
-    <label class='toggle-label' for='toggle-20749901_EA'>
-      <span class='toggle-circle'></span>
-      <span class='toggle-text'>Yr.</span>
-    </label>
-  </div>
-</div>
-
-  <div class='right-side'>
-  <div class='view-container'>
-    <div class='detail-view' id='detail-20749901_EA'>
-      <div class='item-name'>
-  <span class='item-number'>#6</span>
-  <span class='first-word' data-original='Lobster'>Lobster</span>
-  <span class='product-name-text' data-original='Flavoured Wild Alaska Pollock Chunks'>Flavoured Wild Alaska Pollock Chunks</span>
-</div>
-<div class='expire-on'>Expire On: 2025-03-05</div>
-<div class='was-price'>WAS: <span class='was-price'>$ 3.99</span></div>
-<div class='now-price'>NOW: $ 2.99</div>
-<div class='discount-badge' style='border: 2px solid red; border-radius: 50%; padding: 5px; display: inline-block;'>25.1% OFF</div>
-
-    </div>
-    <div class='chart-view' id='chart-20749901_EA'>
-      <canvas id='canvas-20749901_EA' width='400' height='200'></canvas>
-    </div>
-  </div>
-</div>
-
-</div>
-<div class='item-container' data-product-id='20749798_EA'>
-  <div class='left-side'>
-  <div class='item-image'>
-    <img src='https://assets.shop.loblaws.ca/products/20749798/b1/en/angle/20749798_angle_a01_@2.png' alt='Leg-Style Crab Flavoured Wild Alaska Pollock and Wild Pacific Whiting' />
-  </div>
-  <!-- "Detail" button (selected by default) -->
-  <button class='vertical-switch-button selected fade-on-load' data-type='detail' onclick='switchToDetail(this)'>On Sale</button>
-  <!-- Toggle switch (disabled by default, label "1 Yr") -->
-  <div class='toggle-switch disabled' data-product-id='20749798_EA'>
-    <input type='checkbox' class='toggle-input' id='toggle-20749798_EA' onchange='toggleMonYr(this)' ontouchend='toggleMonYr(this)'>
-    <label class='toggle-label' for='toggle-20749798_EA'>
-      <span class='toggle-circle'></span>
-      <span class='toggle-text'>Yr.</span>
-    </label>
-  </div>
-</div>
-
-  <div class='right-side'>
-  <div class='view-container'>
-    <div class='detail-view' id='detail-20749798_EA'>
+    <div class='detail-view' id='detail-20791381_EA'>
       <div class='item-name'>
   <span class='item-number'>#7</span>
-  <span class='first-word' data-original='Leg-Style'>Leg-Style</span>
-  <span class='product-name-text' data-original='Crab Flavoured Wild Alaska Pollock and Wild Pacific Whiting'>Crab Flavoured Wild Alaska Pollock and Wild Pacific Whiting</span>
+  <span class='first-word' data-original='Pacific'>Pacific</span>
+  <span class='product-name-text' data-original='White Shrimp Cooked Peeled'>White Shrimp Cooked Peeled</span>
 </div>
-<div class='expire-on'>Expire On: 2025-03-05</div>
-<div class='was-price'>WAS: <span class='was-price'>$ 3.99</span></div>
-<div class='now-price'>NOW: $ 2.99</div>
-<div class='discount-badge' style='border: 2px solid red; border-radius: 50%; padding: 5px; display: inline-block;'>25.1% OFF</div>
+<div class='expire-on'>Expire On: 2025-03-12</div>
+<div class='was-price'>WAS: <span class='was-price'>$ 10.00</span></div>
+<div class='now-price'>NOW: $ 7.99</div>
+<div class='discount-badge' style='border: 2px solid red; border-radius: 50%; padding: 5px; display: inline-block;'>20.1% OFF</div>
 
     </div>
-    <div class='chart-view' id='chart-20749798_EA'>
-      <canvas id='canvas-20749798_EA' width='400' height='200'></canvas>
+    <div class='chart-view' id='chart-20791381_EA'>
+      <canvas id='canvas-20791381_EA' width='400' height='200'></canvas>
+    </div>
+    <!-- Big picture view overlay -->
+    <div class='big-picture-view' id='bigpic-20791381_EA'>
+      <span class='close-bigpic' onclick='closeBigPicture(this)'>×</span>
+      <img src='' alt='Big Picture' />
     </div>
   </div>
 </div>
 
 </div>
-<div class='item-container' data-product-id='20699832_EA'>
+<div class='item-container' data-product-id='20789931_EA'>
   <div class='left-side'>
   <div class='item-image'>
-    <img src='https://assets.shop.loblaws.ca/products/20699832/b1/en/angle/20699832_angle_a01_@2.png' alt='Flake-Style Crab Flavoured Wild Alaska Pollock and Wild Pacific Whiting' />
+    <img src='https://assets.shop.loblaws.ca/products/20789931/b3/en/angle/20789931_angle_a06_@2.png' alt='Pacific White Shrimp Raw Peeled, Large' onclick='openBigPicture(this)' />
   </div>
   <!-- "Detail" button (selected by default) -->
   <button class='vertical-switch-button selected fade-on-load' data-type='detail' onclick='switchToDetail(this)'>On Sale</button>
   <!-- Toggle switch (disabled by default, label "1 Yr") -->
-  <div class='toggle-switch disabled' data-product-id='20699832_EA'>
-    <input type='checkbox' class='toggle-input' id='toggle-20699832_EA' onchange='toggleMonYr(this)' ontouchend='toggleMonYr(this)'>
-    <label class='toggle-label' for='toggle-20699832_EA'>
+  <div class='toggle-switch disabled' data-product-id='20789931_EA'>
+    <input type='checkbox' class='toggle-input' id='toggle-20789931_EA' onchange='toggleMonYr(this)' ontouchend='toggleMonYr(this)'>
+    <label class='toggle-label' for='toggle-20789931_EA'>
       <span class='toggle-circle'></span>
       <span class='toggle-text'>Yr.</span>
     </label>
@@ -650,36 +1052,41 @@
 
   <div class='right-side'>
   <div class='view-container'>
-    <div class='detail-view' id='detail-20699832_EA'>
+    <div class='detail-view' id='detail-20789931_EA'>
       <div class='item-name'>
   <span class='item-number'>#8</span>
-  <span class='first-word' data-original='Flake-Style'>Flake-Style</span>
-  <span class='product-name-text' data-original='Crab Flavoured Wild Alaska Pollock and Wild Pacific Whiting'>Crab Flavoured Wild Alaska Pollock and Wild Pacific Whiting</span>
+  <span class='first-word' data-original='Pacific'>Pacific</span>
+  <span class='product-name-text' data-original='White Shrimp Raw Peeled, Large'>White Shrimp Raw Peeled, Large</span>
 </div>
-<div class='expire-on'>Expire On: 2025-03-05</div>
-<div class='was-price'>WAS: <span class='was-price'>$ 3.99</span></div>
-<div class='now-price'>NOW: $ 2.99</div>
-<div class='discount-badge' style='border: 2px solid red; border-radius: 50%; padding: 5px; display: inline-block;'>25.1% OFF</div>
+<div class='expire-on'>Expire On: 2025-03-12</div>
+<div class='was-price'>WAS: <span class='was-price'>$ 10.00</span></div>
+<div class='now-price'>NOW: $ 7.99</div>
+<div class='discount-badge' style='border: 2px solid red; border-radius: 50%; padding: 5px; display: inline-block;'>20.1% OFF</div>
 
     </div>
-    <div class='chart-view' id='chart-20699832_EA'>
-      <canvas id='canvas-20699832_EA' width='400' height='200'></canvas>
+    <div class='chart-view' id='chart-20789931_EA'>
+      <canvas id='canvas-20789931_EA' width='400' height='200'></canvas>
+    </div>
+    <!-- Big picture view overlay -->
+    <div class='big-picture-view' id='bigpic-20789931_EA'>
+      <span class='close-bigpic' onclick='closeBigPicture(this)'>×</span>
+      <img src='' alt='Big Picture' />
     </div>
   </div>
 </div>
 
 </div>
-<div class='item-container' data-product-id='21108887_EA'>
+<div class='item-container' data-product-id='20810357_EA'>
   <div class='left-side'>
   <div class='item-image'>
-    <img src='https://assets.shop.loblaws.ca/products/21108887/b1/en/angle/21108887_angle_a01_@2.png' alt='Breaded Cod Bites With Sauce' />
+    <img src='https://assets.shop.loblaws.ca/products/20810357/b3/en/front/20810357_front_a06_@2.png' alt='40 Fathoms Breaded Cod Fillets' onclick='openBigPicture(this)' />
   </div>
   <!-- "Detail" button (selected by default) -->
   <button class='vertical-switch-button selected fade-on-load' data-type='detail' onclick='switchToDetail(this)'>On Sale</button>
   <!-- Toggle switch (disabled by default, label "1 Yr") -->
-  <div class='toggle-switch disabled' data-product-id='21108887_EA'>
-    <input type='checkbox' class='toggle-input' id='toggle-21108887_EA' onchange='toggleMonYr(this)' ontouchend='toggleMonYr(this)'>
-    <label class='toggle-label' for='toggle-21108887_EA'>
+  <div class='toggle-switch disabled' data-product-id='20810357_EA'>
+    <input type='checkbox' class='toggle-input' id='toggle-20810357_EA' onchange='toggleMonYr(this)' ontouchend='toggleMonYr(this)'>
+    <label class='toggle-label' for='toggle-20810357_EA'>
       <span class='toggle-circle'></span>
       <span class='toggle-text'>Yr.</span>
     </label>
@@ -688,341 +1095,117 @@
 
   <div class='right-side'>
   <div class='view-container'>
-    <div class='detail-view' id='detail-21108887_EA'>
+    <div class='detail-view' id='detail-20810357_EA'>
       <div class='item-name'>
   <span class='item-number'>#9</span>
-  <span class='first-word' data-original='Breaded'>Breaded</span>
-  <span class='product-name-text' data-original='Cod Bites With Sauce'>Cod Bites With Sauce</span>
+  <span class='first-word' data-original='40'>40</span>
+  <span class='product-name-text' data-original='Fathoms Breaded Cod Fillets'>Fathoms Breaded Cod Fillets</span>
 </div>
-<div class='expire-on'>Expire On: 2025-03-05</div>
+<div class='expire-on'>Expire On: 2025-03-12</div>
+<div class='was-price'>WAS: <span class='was-price'>$ 16.99</span></div>
+<div class='now-price'>NOW: $ 14.99</div>
+<div class='discount-badge' style='border: 2px solid red; border-radius: 50%; padding: 5px; display: inline-block;'>11.8% OFF</div>
+
+    </div>
+    <div class='chart-view' id='chart-20810357_EA'>
+      <canvas id='canvas-20810357_EA' width='400' height='200'></canvas>
+    </div>
+    <!-- Big picture view overlay -->
+    <div class='big-picture-view' id='bigpic-20810357_EA'>
+      <span class='close-bigpic' onclick='closeBigPicture(this)'>×</span>
+      <img src='' alt='Big Picture' />
+    </div>
+  </div>
+</div>
+
+</div>
+<div class='item-container' data-product-id='20807664_EA'>
+  <div class='left-side'>
+  <div class='item-image'>
+    <img src='https://assets.shop.loblaws.ca/products/20807664/b3/en/front/20807664_front_a06_@2.png' alt='40 Fathoms Breaded Haddock Fillets' onclick='openBigPicture(this)' />
+  </div>
+  <!-- "Detail" button (selected by default) -->
+  <button class='vertical-switch-button selected fade-on-load' data-type='detail' onclick='switchToDetail(this)'>On Sale</button>
+  <!-- Toggle switch (disabled by default, label "1 Yr") -->
+  <div class='toggle-switch disabled' data-product-id='20807664_EA'>
+    <input type='checkbox' class='toggle-input' id='toggle-20807664_EA' onchange='toggleMonYr(this)' ontouchend='toggleMonYr(this)'>
+    <label class='toggle-label' for='toggle-20807664_EA'>
+      <span class='toggle-circle'></span>
+      <span class='toggle-text'>Yr.</span>
+    </label>
+  </div>
+</div>
+
+  <div class='right-side'>
+  <div class='view-container'>
+    <div class='detail-view' id='detail-20807664_EA'>
+      <div class='item-name'>
+  <span class='item-number'>#10</span>
+  <span class='first-word' data-original='40'>40</span>
+  <span class='product-name-text' data-original='Fathoms Breaded Haddock Fillets'>Fathoms Breaded Haddock Fillets</span>
+</div>
+<div class='expire-on'>Expire On: 2025-03-12</div>
+<div class='was-price'>WAS: <span class='was-price'>$ 16.99</span></div>
+<div class='now-price'>NOW: $ 14.99</div>
+<div class='discount-badge' style='border: 2px solid red; border-radius: 50%; padding: 5px; display: inline-block;'>11.8% OFF</div>
+
+    </div>
+    <div class='chart-view' id='chart-20807664_EA'>
+      <canvas id='canvas-20807664_EA' width='400' height='200'></canvas>
+    </div>
+    <!-- Big picture view overlay -->
+    <div class='big-picture-view' id='bigpic-20807664_EA'>
+      <span class='close-bigpic' onclick='closeBigPicture(this)'>×</span>
+      <img src='' alt='Big Picture' />
+    </div>
+  </div>
+</div>
+
+</div>
+<div class='item-container' data-product-id='21562192_EA'>
+  <div class='left-side'>
+  <div class='item-image'>
+    <img src='https://assets.shop.loblaws.ca/products/21562192/b3/en/angle/21562192_angle_a06_@2.png' alt='Crab Dip' onclick='openBigPicture(this)' />
+  </div>
+  <!-- "Detail" button (selected by default) -->
+  <button class='vertical-switch-button selected fade-on-load' data-type='detail' onclick='switchToDetail(this)'>On Sale</button>
+  <!-- Toggle switch (disabled by default, label "1 Yr") -->
+  <div class='toggle-switch disabled' data-product-id='21562192_EA'>
+    <input type='checkbox' class='toggle-input' id='toggle-21562192_EA' onchange='toggleMonYr(this)' ontouchend='toggleMonYr(this)'>
+    <label class='toggle-label' for='toggle-21562192_EA'>
+      <span class='toggle-circle'></span>
+      <span class='toggle-text'>Yr.</span>
+    </label>
+  </div>
+</div>
+
+  <div class='right-side'>
+  <div class='view-container'>
+    <div class='detail-view' id='detail-21562192_EA'>
+      <div class='item-name'>
+  <span class='item-number'>#11</span>
+  <span class='first-word' data-original='Crab'>Crab</span>
+  <span class='product-name-text' data-original='Dip'>Dip</span>
+</div>
+<div class='expire-on'>Expire On: 2025-03-12</div>
 <div class='was-price'>WAS: <span class='was-price'>$ 10.99</span></div>
 <div class='now-price'>NOW: $ 9.99</div>
 <div class='discount-badge' style='border: 2px solid red; border-radius: 50%; padding: 5px; display: inline-block;'>9.1% OFF</div>
 
     </div>
-    <div class='chart-view' id='chart-21108887_EA'>
-      <canvas id='canvas-21108887_EA' width='400' height='200'></canvas>
+    <div class='chart-view' id='chart-21562192_EA'>
+      <canvas id='canvas-21562192_EA' width='400' height='200'></canvas>
+    </div>
+    <!-- Big picture view overlay -->
+    <div class='big-picture-view' id='bigpic-21562192_EA'>
+      <span class='close-bigpic' onclick='closeBigPicture(this)'>×</span>
+      <img src='' alt='Big Picture' />
     </div>
   </div>
 </div>
 
 </div>
 
-
-<script>
-var chartInstances = {};
-
-/**
- * "Detail" button: show discount (detail) view and hide chart view.
- */
-function switchToDetail(btn) {
-    var container = btn.closest('.item-container');
-    container.querySelectorAll('.vertical-switch-button').forEach(function(b) {
-        b.classList.remove('selected');
-    });
-    btn.classList.add('selected');
-
-    var toggleSwitch = container.querySelector('.toggle-switch');
-    toggleSwitch.classList.add('disabled');
-    var toggleInput = container.querySelector('.toggle-input');
-    toggleInput.checked = false;
-    var toggleLabel = toggleSwitch.querySelector('.toggle-text');
-    toggleLabel.textContent = "1 Yr";
-
-    var detailView = container.querySelector('.detail-view');
-    var chartView = container.querySelector('.chart-view');
-    detailView.style.opacity = '1';
-    detailView.style.display = 'block';
-    chartView.style.opacity = '0';
-    chartView.style.display = 'none';
-
-    var productId = container.getAttribute('data-product-id');
-    if (chartInstances[productId]) {
-        chartInstances[productId].destroy();
-        delete chartInstances[productId];
-    }
-}
-
-/**
- * Toggle switch handler:
- * When toggled, hide discount view and show chart view immediately.
- * If checked, render a 1 Yr line chart; if unchecked, render a 1 Mon stacked bar chart.
- */
-function toggleMonYr(checkbox) {
-    var container = checkbox.closest('.item-container');
-    var toggleSwitch = container.querySelector('.toggle-switch');
-    if (toggleSwitch.classList.contains('disabled')) {
-        toggleSwitch.classList.remove('disabled');
-    }
-    var detailBtn = container.querySelector('[data-type="detail"]');
-    detailBtn.classList.remove('selected');
-
-    var detailView = container.querySelector('.detail-view');
-    var chartView = container.querySelector('.chart-view');
-    detailView.style.opacity = '0';
-    detailView.style.display = 'none';
-    chartView.style.opacity = '1';
-    chartView.style.display = 'block';
-
-    var productId = container.getAttribute('data-product-id');
-    var toggleLabel = checkbox.nextElementSibling.querySelector('.toggle-text');
-    var data1mon = window.priceHistoryData[productId]["1mon"] || [];
-    var data1yr  = window.priceHistoryData[productId]["1yr"]  || [];
-
-    if (chartInstances[productId]) {
-        chartInstances[productId].destroy();
-        delete chartInstances[productId];
-    }
-
-    if (checkbox.checked) {
-        toggleLabel.textContent = "Yr.";
-        var filtered = data1yr.filter(function(d) {
-            return d.was_price > 0 && d.now_price > 0;
-        });
-        renderLineChart(productId, filtered);
-    } else {
-        toggleLabel.textContent = "Mon";
-        var filtered = data1mon.filter(function(d) {
-            return d.was_price > 0 && d.now_price > 0;
-        });
-        renderStackedBarChart(productId, filtered);
-    }
-}
-
-/**
- * Renders a stacked bar chart (1 Mon data) using Chart.js.
- * Legend is disabled.
- */
-function renderStackedBarChart(productId, data) {
-  const ctx = document.getElementById('canvas-' + productId).getContext('2d');
-  if (!data || data.length === 0) {
-    ctx.font = "14px Arial";
-    ctx.fillText("No 1 Mon data", 10, 50);
-    return;
-  }
-  let maxWas = 0;
-  data.forEach(function(d) {
-    if (d.was_price > maxWas) { maxWas = d.was_price; }
-  });
-  const yAxisMax = maxWas * 1.1;
-  chartInstances[productId] = new Chart(ctx, {
-    type: 'bar',
-    data: {
-      labels: data.map(function(d) { return d.date; }),
-      datasets: [
-        {
-          label: 'Now Price',
-          data: data.map(function(d) { return d.now_price; }),
-          backgroundColor: '#009900',
-          stack: 'Stack 0',
-          datalabels: {
-            formatter: function(value, context) {
-              return data[context.dataIndex].now_price.toFixed(2);
-            },
-            color: '#000',
-            font: { size: 10, weight: 'normal' },
-            anchor: 'end',
-            align: 'end',
-            offset: -4
-          }
-        },
-        {
-          label: 'Was Price',
-          data: data.map(function(d) { return d.was_price - d.now_price; }),
-          backgroundColor: '#FF9900',
-          stack: 'Stack 0',
-          datalabels: {
-            formatter: function(value, context) {
-              return data[context.dataIndex].was_price.toFixed(2);
-            },
-            color: '#000',
-            font: { size: 10, weight: 'normal' },
-            anchor: 'end',
-            align: 'end',
-            offset: 2
-          }
-        },
-        {
-          type: 'line',
-          label: 'Now Price Trend',
-          data: data.map(function(d) { return d.now_price; }),
-          borderColor: '#000',
-          borderWidth: 1,
-          fill: false,
-          tension: 0.1,
-          pointBackgroundColor: '#000',
-          order: 99,
-          z: 9999,
-          yAxisID: 'yLine',
-          datalabels: { display: false }
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        axisTitleBackgroundPlugin: { backgroundColor: '#ddd' },
-        datalabels: { clip: false },
-        legend: { display: false }
-      },
-      scales: {
-        x: {
-          stacked: true,
-          title: { display: false, text: 'Date' }
-        },
-        y: {
-          stacked: true,
-          beginAtZero: true,
-          title: { display: false, text: 'Price' },
-          max: yAxisMax
-        },
-        yLine: {
-          beginAtZero: true,
-          display: false,
-          min: 0,
-          max: yAxisMax
-        }
-      }
-    }
-  });
-}
-
-/**
- * Renders a two-line chart (1 Yr data) using Chart.js.
- * Legend is disabled.
- */
-function renderLineChart(productId, data) {
-  const ctx = document.getElementById('canvas-' + productId).getContext('2d');
-  if (!data || data.length === 0) {
-    ctx.font = "14px Arial";
-    ctx.fillText("No 1 Yr data", 10, 50);
-    return;
-  }
-  let maxPrice = 0;
-  data.forEach(function(d) {
-    if (d.was_price > maxPrice) { maxPrice = d.was_price; }
-    if (d.now_price > maxPrice) { maxPrice = d.now_price; }
-  });
-  const yAxisMax = maxPrice * 1.2;
-  chartInstances[productId] = new Chart(ctx, {
-    type: 'line',
-    data: {
-      labels: data.map(function(d) { return d.date; }),
-      datasets: [
-        {
-          label: 'Was Price',
-          data: data.map(function(d) { return d.was_price; }),
-          borderColor: '#0077cc',
-          backgroundColor: '#0077cc',
-          fill: false,
-          tension: 0.1,
-          datalabels: {
-            color: '#0077cc',
-            anchor: 'end',
-            align: 'end',
-            offset: 4,
-            font: { size: 10, weight: 'normal' },
-            formatter: function(value) { return value.toFixed(2); }
-          }
-        },
-        {
-          label: 'Now Price',
-          data: data.map(function(d) { return d.now_price; }),
-          borderColor: '#009900',
-          backgroundColor: '#009900',
-          fill: false,
-          tension: 0.1,
-          datalabels: {
-            color: '#009900',
-            anchor: 'start',
-            align: 'start',
-            offset: 4,
-            font: { size: 10, weight: 'normal' },
-            formatter: function(value) { return value.toFixed(2); }
-          }
-        }
-      ]
-    },
-    options: {
-      responsive: true,
-      maintainAspectRatio: false,
-      plugins: {
-        datalabels: { clip: false },
-        legend: { display: false }
-      },
-      scales: {
-        x: { title: { display: false, text: 'Date' } },
-        y: { title: { display: false, text: 'Price' }, beginAtZero: true, max: yAxisMax }
-      }
-    }
-  });
-}
-
-function showSearchBar() {
-    var header = document.querySelector('.header-container');
-    header.style.display = 'none';
-    var searchBar = document.getElementById('searchBarContainer');
-    searchBar.style.display = 'flex';
-    setTimeout(function() {
-        searchBar.style.opacity = '1';
-    }, 10);
-    document.getElementById('searchInput').focus();
-}
-
-function hideSearchBar() {
-    var searchBar = document.getElementById('searchBarContainer');
-    var header = document.querySelector('.header-container');
-    var searchInput = document.getElementById('searchInput');
-    searchInput.value = '';
-    var firstElems = document.getElementsByClassName('first-word');
-    var secondElems = document.getElementsByClassName('product-name-text');
-    for (var i = 0; i < firstElems.length; i++) {
-        firstElems[i].innerHTML = firstElems[i].dataset.original || firstElems[i].innerHTML;
-    }
-    for (var i = 0; i < secondElems.length; i++) {
-        secondElems[i].innerHTML = secondElems[i].dataset.original || secondElems[i].innerHTML;
-    }
-    var items = document.getElementsByClassName('item-container');
-    for (var i = 0; i < items.length; i++) {
-        items[i].style.display = '';
-    }
-    document.getElementById('searchCount').innerText = '';
-    searchBar.style.opacity = '0';
-    setTimeout(function() {
-        searchBar.style.display = 'none';
-        header.style.display = 'flex';
-    }, 500);
-}
-
-function inPageSearch() {
-    var input = document.getElementById('searchInput').value.trim();
-    var term = input.toLowerCase();
-    var items = document.getElementsByClassName('item-container');
-    var visibleCount = 0;
-    for (var i = 0; i < items.length; i++) {
-        var firstElem = items[i].querySelector('.first-word');
-        var secondElem = items[i].querySelector('.product-name-text');
-        var fullName = (firstElem.textContent + ' ' + secondElem.textContent).toLowerCase();
-        if (term === '' || fullName.indexOf(term) > -1) {
-            items[i].style.display = '';
-            visibleCount++;
-            if (term !== '') {
-                firstElem.innerHTML = (firstElem.dataset.original || firstElem.textContent)
-                                      .replace(new RegExp('('+term+')', 'gi'), '<mark>$1</mark>');
-                secondElem.innerHTML = (secondElem.dataset.original || secondElem.textContent)
-                                      .replace(new RegExp('('+term+')', 'gi'), '<mark>$1</mark>');
-            } else {
-                firstElem.innerHTML = firstElem.dataset.original || firstElem.innerHTML;
-                secondElem.innerHTML = secondElem.dataset.original || secondElem.innerHTML;
-            }
-        } else {
-            items[i].style.display = 'none';
-        }
-    }
-    document.getElementById('searchCount').innerText = visibleCount + " found";
-}
-</script>
 
 </body>
 </html>
